@@ -49,9 +49,10 @@ export default function Admin() {
   }
 
   const toggleLevels = async () => {
+    const next = !levelsHidden
     try {
-      await setLevelsHidden(!levelsHidden)
-      toast(levelsHidden ? '👁️ Levely jsou zase viditelné.' : '🙈 Levely skryté pro hráče.', 'success')
+      await setLevelsHidden(next)
+      toast(next ? '🙈 Levely skryté pro hráče.' : '👁️ Levely jsou zase viditelné.', 'success')
     } catch { toast('Nepodařilo se změnit nastavení.', 'error') }
   }
 

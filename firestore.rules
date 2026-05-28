@@ -3,15 +3,27 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /usernames/{username} {
+      // Čtení musí být veřejné — kontrola dostupnosti jména probíhá PŘED přihlášením
       allow read: if true;
-      allow write: if true;
+      // Zápis až po přihlášení (registrace uživatele přihlásí dřív než tu doc vytvoří)
+      allow write: if request.auth != null;
     }
 
     match /users/{userId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == userId;
-      // Hráč může updatovat svůj dokument I dokument jiného hráče (pro posílání kleteb)
-      allow update: if request.auth != null;
+
+      allow update: if request.auth != null && (
+        // Vlastní dokument: smí měnit cokoliv KROMĚ isAdmin a approved
+        (request.auth.uid == userId
+          && request.resource.data.isAdmin == resource.data.isAdmin
+          && request.resource.data.approved == resource.data.approved)
+        // Cizí dokument: jen kvůli posílání kleteb (mění se pouze activeCurses)
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activeCurses'])
+        // Admin smí vše
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+
       allow delete: if request.auth != null &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
