@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
+import Avatar from '../components/Avatar'
 import { useNavigate } from 'react-router-dom'
 
 export default function Admin() {
@@ -104,10 +105,10 @@ export default function Admin() {
               <div key={u.uid} className="flex items-center gap-3 mb-2">
                 <span style={{ fontSize: '1.2rem' }}>{['🥇','🥈','🥉'][i]}</span>
                 <div style={{ position: 'relative' }}>
-                  <div className="level-badge" style={{ width: '2rem', height: '2rem', fontSize: '0.8rem' }}>{u.level}</div>
+                  <Avatar src={u.avatar} name={u.username} size={32} />
                 </div>
                 <span style={{ flex: 1 }}>{u.username}</span>
-                <span className="text-xs text-muted">{u.xp} / {XP_PER_LEVEL} Zkuš.</span>
+                <span className="text-xs text-muted">Úr. {u.level} · {u.xp}/{XP_PER_LEVEL}</span>
               </div>
             ))}
           </div>
@@ -154,10 +155,11 @@ export default function Admin() {
               <div key={u.uid} className="card mb-3">
                 <div className="flex items-center gap-3 mb-3">
                   <div style={{ position: 'relative' }}>
-                    <div className="level-badge">{u.level}</div>
+                    <Avatar src={u.avatar} name={u.username} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700 }}>{u.username}</div>
+                    <div className="text-xs text-muted">Úroveň {u.level}</div>
                   </div>
                   <button className="btn btn-red" style={{ fontSize: '0.72rem', padding: '0.25rem 0.6rem' }}
                     onClick={() => setConfirmDelete(u)}>🗑️</button>

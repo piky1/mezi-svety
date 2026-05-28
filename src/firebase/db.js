@@ -131,6 +131,13 @@ export const addXpToUser = async (uid, xpToAdd) => {
   return { leveledUp, newLevel }
 }
 
+// Avatar (uložený jako data URL přímo v dokumentu uživatele)
+export const updateUserAvatar = (uid, avatar) =>
+  updateDoc(doc(db, 'users', uid), { avatar })
+
+export const removeUserAvatar = (uid) =>
+  updateDoc(doc(db, 'users', uid), { avatar: null })
+
 // Admin přiděluje tokeny na kolo štěstí ručně
 export const giveTokenToUser = async (uid, count = 1) => {
   const userData = await getUserData(uid)

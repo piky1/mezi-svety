@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
+import Avatar from '../components/Avatar'
 
 export default function Postavy() {
   const { userData, levelsHidden } = useAuth()
@@ -57,9 +58,9 @@ export default function Postavy() {
           <div key={u.uid} className="card" style={isMe ? { borderColor: 'var(--gold-dim)' } : {}}>
             <div className="flex items-center gap-3" style={{ cursor: 'pointer' }}
               onClick={() => setExpanded(isOpen ? null : u.uid)}>
-              {/* Level badge (bez online tečky) */}
+              {/* Avatar postavy */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div className="level-badge">{hideLevels ? '✦' : u.level}</div>
+                <Avatar src={u.avatar} name={u.username} />
                 {!hideLevels && i === 0 && <span style={{ position: 'absolute', top: -10, right: -10, fontSize: '0.85rem' }}>👑</span>}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>

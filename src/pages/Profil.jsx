@@ -1,16 +1,40 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { sendCurse, subscribeToApprovedUsersForDisplay, cleanExpiredCurses } from '../firebase/db'
+import { sendCurse, subscribeToApprovedUsersForDisplay, cleanExpiredCurses, updateUserAvatar, removeUserAvatar } from '../firebase/db'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
+import Avatar from '../components/Avatar'
+
+// Zmenší obrázek na čtverec a vrátí ho jako data URL (aby se vešel do Firestore)
+function resizeImage(file, size = 256) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const canvas = document.createElement('canvas')
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')
+      const min = Math.min(img.width, img.height)
+      const sx = (img.width - min) / 2
+      const sy = (img.height - min) / 2
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size)
+      resolve(canvas.toDataURL('image/jpeg', 0.85))
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load-failed')) }
+    img.src = url
+  })
+}
 
 export default function Profil() {
   const { userData, levelsHidden } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const [sendingCurse, setSendingCurse] = useState(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   if (!userData) return null
 
@@ -19,17 +43,52 @@ export default function Profil() {
   const tokens = (userData.inventory || []).filter(i => i.type === 'spin_token')
   const pendingCurses = (userData.inventory || []).filter(i => i.type === 'pending_curse')
 
+  const handleAvatarFile = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // ať jde nahrát stejný soubor znovu
+    if (!file) return
+    if (!file.type.startsWith('image/')) { toast('Vyber prosím obrázek.', 'error'); return }
+    setUploadingAvatar(true)
+    try {
+      const dataUrl = await resizeImage(file, 256)
+      if (dataUrl.length > 900000) { toast('Obrázek je moc velký, zkus jiný.', 'error'); return }
+      await updateUserAvatar(userData.uid, dataUrl)
+      toast('Avatar nastaven! 🖼️', 'success')
+    } catch { toast('Nepodařilo se nahrát obrázek.', 'error') }
+    finally { setUploadingAvatar(false) }
+  }
+
+  const handleAvatarRemove = async () => {
+    try { await removeUserAvatar(userData.uid); toast('Avatar odebrán.', 'info') }
+    catch { toast('Nepodařilo se odebrat avatar.', 'error') }
+  }
+
   return (
     <div className="page">
       <div className="card card-gold" style={{ textAlign: 'center', padding: '1.75rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>⚔️</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+          <Avatar src={userData.avatar} name={userData.username} size={84} />
+        </div>
         <h2 className="heading" style={{ fontSize: '1.4rem', color: 'var(--gold)', marginBottom: '0.25rem' }}>{userData.username}</h2>
+
+        <div className="flex justify-center gap-2" style={{ marginTop: '0.5rem' }}>
+          <label className="btn btn-ghost" style={{ cursor: uploadingAvatar ? 'default' : 'pointer', fontSize: '0.78rem', opacity: uploadingAvatar ? 0.6 : 1, pointerEvents: uploadingAvatar ? 'none' : 'auto' }}>
+            {uploadingAvatar ? 'Nahrávám...' : '📷 Nahrát obrázek'}
+            <input type="file" accept="image/*" onChange={handleAvatarFile} disabled={uploadingAvatar} style={{ display: 'none' }} />
+          </label>
+          {userData.avatar && (
+            <button className="btn btn-ghost" style={{ fontSize: '0.78rem' }} onClick={handleAvatarRemove}>Odebrat</button>
+          )}
+        </div>
+
         {hideLevels ? (
           <p className="text-muted text-sm" style={{ marginTop: '0.75rem' }}>🙈 Levely jsou momentálně skryté.</p>
         ) : (
           <div style={{ maxWidth: 280, margin: '0.75rem auto 0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className="level-badge">{userData.level}</div>
-            <div style={{ flex: 1 }}><XpBar xp={userData.xp} level={userData.level} /></div>
+            <div style={{ flex: 1 }}>
+              <div className="text-xs text-dim" style={{ textAlign: 'left', marginBottom: 4 }}>Úroveň {userData.level}</div>
+              <XpBar xp={userData.xp} level={userData.level} />
+            </div>
           </div>
         )}
         {userData.isAdmin && (
