@@ -7,13 +7,14 @@ import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
 
 export default function Profil() {
-  const { userData } = useAuth()
+  const { userData, levelsHidden } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const [sendingCurse, setSendingCurse] = useState(null)
 
   if (!userData) return null
 
+  const hideLevels = levelsHidden && !userData.isAdmin
   const cursesInInventory = (userData.inventory || []).filter(i => i.type === 'curse')
   const tokens = (userData.inventory || []).filter(i => i.type === 'spin_token')
   const pendingCurses = (userData.inventory || []).filter(i => i.type === 'pending_curse')
@@ -23,10 +24,14 @@ export default function Profil() {
       <div className="card card-gold" style={{ textAlign: 'center', padding: '1.75rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>⚔️</div>
         <h2 className="heading" style={{ fontSize: '1.4rem', color: 'var(--gold)', marginBottom: '0.25rem' }}>{userData.username}</h2>
-        <div style={{ maxWidth: 280, margin: '0.75rem auto 0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div className="level-badge">{userData.level}</div>
-          <div style={{ flex: 1 }}><XpBar xp={userData.xp} level={userData.level} /></div>
-        </div>
+        {hideLevels ? (
+          <p className="text-muted text-sm" style={{ marginTop: '0.75rem' }}>🙈 Levely jsou momentálně skryté.</p>
+        ) : (
+          <div style={{ maxWidth: 280, margin: '0.75rem auto 0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="level-badge">{userData.level}</div>
+            <div style={{ flex: 1 }}><XpBar xp={userData.xp} level={userData.level} /></div>
+          </div>
+        )}
         {userData.isAdmin && (
           <span style={{ display: 'inline-block', marginTop: '0.75rem', background: 'rgba(201,168,76,0.15)', color: 'var(--gold)', border: '1px solid var(--gold-dim)', borderRadius: 999, padding: '0.15rem 0.75rem', fontSize: '0.78rem', fontFamily: 'Cinzel, serif' }}>✦ Admin</span>
         )}

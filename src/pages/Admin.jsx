@@ -3,16 +3,15 @@ import {
   subscribeToAllUsers, subscribeToPendingUsers, approveUser, rejectUser,
   addXpToUser, removeXpFromUser, removeCurseFromUser, removeInventoryItem,
   deleteUserData, cleanExpiredCurses, giftCurseToUser, castCurseOnUser,
-  CURSES_15, XP_PER_LEVEL
+  giveTokenToUser, setLevelsHidden, CURSES_15, XP_PER_LEVEL
 } from '../firebase/db'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
-import OnlineDot from '../components/OnlineDot'
 import { useNavigate } from 'react-router-dom'
 
 export default function Admin() {
-  const { userData } = useAuth()
+  const { userData, levelsHidden } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const [users, setUsers] = useState([])
@@ -38,7 +37,7 @@ export default function Admin() {
     try {
       if (add) {
         const r = await addXpToUser(uid, xp)
-        if (r.leveledUp) toast(`⬆️ Úroveň ${r.newLevel}!${r.gotToken ? ' +token 🎡' : ''}`, 'success')
+        if (r.leveledUp) toast(`⬆️ Úroveň ${r.newLevel}!`, 'success')
         else toast(`+${xp} Zkušenosti přidáno.`, 'success')
       } else {
         const r = await removeXpFromUser(uid, xp)
@@ -47,6 +46,18 @@ export default function Admin() {
       setXpInputs(i => ({ ...i, [uid]: '' }))
     } catch { toast('Chyba.', 'error') }
     finally { setLoading(l => ({ ...l, [uid]: false })) }
+  }
+
+  const toggleLevels = async () => {
+    try {
+      await setLevelsHidden(!levelsHidden)
+      toast(levelsHidden ? '👁️ Levely jsou zase viditelné.' : '🙈 Levely skryté pro hráče.', 'success')
+    } catch { toast('Nepodařilo se změnit nastavení.', 'error') }
+  }
+
+  const handleToken = async (uid, username) => {
+    try { await giveTokenToUser(uid); toast(`🎡 Token přidán ${username}.`, 'success') }
+    catch { toast('Chyba při přidávání tokenu.', 'error') }
   }
 
   const handleDelete = async (uid, username) => {
@@ -66,6 +77,15 @@ export default function Admin() {
     <div className="page">
       <h2 className="heading mb-3" style={{ fontSize: '1.3rem', color: 'var(--gold)' }}>⚙️ Admin Panel</h2>
 
+      <div className="card mb-3 flex items-center gap-3" style={{ justifyContent: 'space-between' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 700 }}>{levelsHidden ? '🙈 Levely jsou skryté' : '👁️ Levely jsou viditelné'}</div>
+          <div className="text-xs text-muted">Při skrytí hráči nevidí svoje ani cizí levely. Ty je vidíš pořád.</div>
+        </div>
+        <button className={`btn ${levelsHidden ? 'btn-gold' : 'btn-ghost'}`} style={{ fontSize: '0.8rem', flexShrink: 0 }}
+          onClick={toggleLevels}>{levelsHidden ? 'Zobrazit levely' : 'Skrýt levely'}</button>
+      </div>
+
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         {TABS.map(t => (
           <button key={t.id} className={`btn ${tab === t.id ? 'btn-gold' : 'btn-ghost'}`}
@@ -84,25 +104,11 @@ export default function Admin() {
                 <span style={{ fontSize: '1.2rem' }}>{['🥇','🥈','🥉'][i]}</span>
                 <div style={{ position: 'relative' }}>
                   <div className="level-badge" style={{ width: '2rem', height: '2rem', fontSize: '0.8rem' }}>{u.level}</div>
-                  <OnlineDot online={u.online} />
                 </div>
                 <span style={{ flex: 1 }}>{u.username}</span>
                 <span className="text-xs text-muted">{u.xp} / {XP_PER_LEVEL} Zkuš.</span>
               </div>
             ))}
-          </div>
-          <div className="card">
-            <p className="section-title">🟢 Online ({approvedPlayers.filter(u => u.online).length})</p>
-            {approvedPlayers.filter(u => u.online).length === 0
-              ? <p className="text-muted text-xs">Nikdo není online.</p>
-              : approvedPlayers.filter(u => u.online).map(u => (
-                <div key={u.uid} className="flex items-center gap-2 mb-1">
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4caf50', display: 'inline-block', boxShadow: '0 0 6px #4caf50' }} />
-                  <span className="text-sm">{u.username}</span>
-                  <span className="text-xs text-muted">Úroveň {u.level}</span>
-                </div>
-              ))
-            }
           </div>
         </div>
       )}
@@ -148,7 +154,6 @@ export default function Admin() {
                 <div className="flex items-center gap-3 mb-3">
                   <div style={{ position: 'relative' }}>
                     <div className="level-badge">{u.level}</div>
-                    <OnlineDot online={u.online} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700 }}>{u.username}</div>
@@ -181,6 +186,14 @@ export default function Admin() {
                   <button className="btn btn-red flex-1" style={{ fontSize: '0.78rem' }}
                     onClick={() => setGiftModal({ uid: u.uid, username: u.username, mode: 'cast' })}>
                     ⚡ Seslat kletbu přímo
+                  </button>
+                </div>
+
+                {/* Token na kolo štěstí */}
+                <div className="flex gap-2 mt-2">
+                  <button className="btn btn-gold flex-1" style={{ fontSize: '0.78rem' }}
+                    onClick={() => handleToken(u.uid, u.username)}>
+                    🎡 Přidat token na kolo
                   </button>
                 </div>
 

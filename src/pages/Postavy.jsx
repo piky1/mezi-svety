@@ -4,10 +4,9 @@ import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
-import OnlineDot from '../components/OnlineDot'
 
 export default function Postavy() {
-  const { userData } = useAuth()
+  const { userData, levelsHidden } = useAuth()
   const toast = useToast()
   const [users, setUsers] = useState([])
   const [expanded, setExpanded] = useState(null)
@@ -19,6 +18,13 @@ export default function Postavy() {
   }, [userData?.uid])
 
   if (!userData) return null
+
+  // Když admin skryl levely, běžní hráči nevidí žádné levely (svoje ani cizí).
+  // Admin je vidí pořád. Při skrytí seřadíme podle jména, ať se pořadí nedá zneužít.
+  const hideLevels = levelsHidden && !userData.isAdmin
+  const displayUsers = hideLevels
+    ? [...users].sort((a, b) => a.username.localeCompare(b.username, 'cs'))
+    : users
 
   const cursesInInventory = (userData.inventory || []).filter(i => i.type === 'curse')
 
@@ -33,9 +39,13 @@ export default function Postavy() {
     <div className="page">
       <h2 className="heading mb-3" style={{ fontSize: '1.3rem', color: 'var(--gold)' }}>✦ Postavy světa</h2>
 
-      {users.length === 0 && <p className="text-muted text-sm">Žádné postavy zatím...</p>}
+      {hideLevels && (
+        <p className="text-muted text-sm mb-3">🙈 Levely jsou momentálně skryté.</p>
+      )}
 
-      {users.map((u, i) => {
+      {displayUsers.length === 0 && <p className="text-muted text-sm">Žádné postavy zatím...</p>}
+
+      {displayUsers.map((u, i) => {
         const isMe = u.uid === userData.uid
         const activeCurses = cleanExpiredCurses(u.activeCurses)
         const isOpen = expanded === u.uid
@@ -47,18 +57,17 @@ export default function Postavy() {
           <div key={u.uid} className="card" style={isMe ? { borderColor: 'var(--gold-dim)' } : {}}>
             <div className="flex items-center gap-3" style={{ cursor: 'pointer' }}
               onClick={() => setExpanded(isOpen ? null : u.uid)}>
-              {/* Level badge s online tečkou */}
+              {/* Level badge (bez online tečky) */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div className="level-badge">{u.level}</div>
-                <OnlineDot online={u.online} />
-                {i === 0 && <span style={{ position: 'absolute', top: -10, right: -10, fontSize: '0.85rem' }}>👑</span>}
+                <div className="level-badge">{hideLevels ? '✦' : u.level}</div>
+                {!hideLevels && i === 0 && <span style={{ position: 'absolute', top: -10, right: -10, fontSize: '0.85rem' }}>👑</span>}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="user-name">{u.username}</span>
                   {isMe && <span className="text-xs text-muted">(ty)</span>}
                 </div>
-                <div className="text-xs text-dim">Úroveň {u.level}</div>
+                {!hideLevels && <div className="text-xs text-dim">Úroveň {u.level}</div>}
               </div>
               <div className="flex items-center gap-2">
                 {activeCurses.length > 0 && activeCurses.map(c =>
@@ -70,7 +79,7 @@ export default function Postavy() {
 
             {isOpen && (
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
-                <XpBar xp={u.xp} level={u.level} />
+                {!hideLevels && <XpBar xp={u.xp} level={u.level} />}
 
                 {/* Aktivní kletby */}
                 <div className="mt-3">

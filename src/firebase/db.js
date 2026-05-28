@@ -7,6 +7,14 @@ import { db, auth } from './config'
 
 export const XP_PER_LEVEL = 100
 
+// ─── Globální nastavení (sdílené přes celou hru) ───
+export const subscribeToSettings = (callback) =>
+  onSnapshot(doc(db, 'settings', 'app'), (snap) =>
+    callback(snap.exists() ? snap.data() : {}))
+
+export const setLevelsHidden = (hidden) =>
+  setDoc(doc(db, 'settings', 'app'), { levelsHidden: hidden }, { merge: true })
+
 export const CURSES_15 = [
   {
     id: 'slepota', name: 'Slepota', icon: '👁️',
@@ -63,7 +71,6 @@ export const registerUser = async (username, password) => {
   await setDoc(doc(db, 'users', cred.user.uid), {
     uid: cred.user.uid, username: username.trim(), usernameLower: key,
     level: 1, xp: 0, isAdmin: false, approved: false,
-    online: false, lastSeen: serverTimestamp(),
     inventory: [], activeCurses: [], createdAt: serverTimestamp(),
   })
   return cred.user
@@ -76,13 +83,7 @@ export const loginUser = async (username, password) => {
   return signInWithEmailAndPassword(auth, snap.data().email, password)
 }
 
-export const logoutUser = async (uid) => {
-  if (uid) { try { await updateDoc(doc(db, 'users', uid), { online: false, lastSeen: serverTimestamp() }) } catch {} }
-  return signOut(auth)
-}
-
-export const setOnline = (uid, online) =>
-  updateDoc(doc(db, 'users', uid), { online, lastSeen: serverTimestamp() }).catch(() => {})
+export const logoutUser = async () => signOut(auth)
 
 export const getUserData = async (uid) => {
   const snap = await getDoc(doc(db, 'users', uid))
@@ -122,17 +123,23 @@ export const addXpToUser = async (uid, xpToAdd) => {
   const userData = await getUserData(uid)
   if (!userData) throw new Error('Uživatel nenalezen')
   let newXp = userData.xp + xpToAdd, newLevel = userData.level
-  let leveledUp = false, gotToken = false
-  let newInventory = [...(userData.inventory || [])]
+  let leveledUp = false
   while (newXp >= XP_PER_LEVEL) {
     newXp -= XP_PER_LEVEL; newLevel++; leveledUp = true
-    if (newLevel % 2 === 0) {
-      newInventory.push({ type: 'spin_token', id: `token_${Date.now()}_${Math.random()}` })
-      gotToken = true
-    }
   }
-  await updateDoc(doc(db, 'users', uid), { xp: newXp, level: newLevel, inventory: newInventory })
-  return { leveledUp, gotToken, newLevel }
+  await updateDoc(doc(db, 'users', uid), { xp: newXp, level: newLevel })
+  return { leveledUp, newLevel }
+}
+
+// Admin přiděluje tokeny na kolo štěstí ručně
+export const giveTokenToUser = async (uid, count = 1) => {
+  const userData = await getUserData(uid)
+  if (!userData) throw new Error('Uživatel nenalezen')
+  const newInventory = [...(userData.inventory || [])]
+  for (let i = 0; i < count; i++) {
+    newInventory.push({ type: 'spin_token', id: `token_${Date.now()}_${Math.random()}_${i}` })
+  }
+  await updateDoc(doc(db, 'users', uid), { inventory: newInventory })
 }
 
 export const removeXpFromUser = async (uid, xpToRemove) => {
