@@ -63,23 +63,23 @@ function Wheel({ items, rotation, size = 230 }) {
 }
 
 /**
- * Vypočítá cílový úhel natočení tak, aby slice s indexem `targetIndex`
- * skončil pod šipkou (nahoře).
+ * Vypočítá cílový úhel natočení tak, aby STŘED dílku s indexem `targetIndex`
+ * skončil přesně pod šipkou (nahoře).
  *
- * Slice i má střed v úhlu: i * (360/n) od pozice "nahoře"
- * (v SVG souřadnicích kde 0° je nahoře díky -PI/2 offsetu).
- *
- * Aby slice i skončil nahoře, musíme kolo otočit o -i * (360/n).
+ * Dílek i začíná nahoře a roztahuje se po směru hodin, takže jeho STŘED
+ * leží v úhlu (i + 0.5) * (360/n) od pozice "nahoře". Aby tento střed
+ * skončil pod šipkou, musíme kolo otočit o -(i + 0.5) * (360/n).
  * Plus přidáme N celých otáček pro efekt točení.
  */
 function calcTargetRotation(targetIndex, totalSlices, currentRotation) {
   const anglePerSlice = 360 / totalSlices
-  // Aby slice byl nahoře, kolo musí být otočené o -i * anglePerSlice
-  const targetMod = -targetIndex * anglePerSlice
+  // Aby STŘED dílku byl nahoře, kolo musí být otočené o -(i + 0.5) * anglePerSlice
+  const targetMod = -(targetIndex + 0.5) * anglePerSlice
   // Přidáme minimálně 4 plné otáčky
   const fullTurns = 4 * 360
-  // Plus malý offset aby šipka ukazovala na STŘED slice (ne na hranu)
-  const jitter = (Math.random() - 0.5) * (anglePerSlice * 0.7)
+  // Malý náhodný posun kolem středu dílku (bezpečně uvnitř, ±0.25 dílku),
+  // ať dojezd vypadá přirozeně, ale nikdy nepřepadne na sousední třídu
+  const jitter = (Math.random() - 0.5) * (anglePerSlice * 0.5)
   return currentRotation + fullTurns + targetMod + jitter - (currentRotation % 360)
 }
 
