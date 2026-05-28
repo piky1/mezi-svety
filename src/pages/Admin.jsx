@@ -105,7 +105,7 @@ export default function Admin() {
               <div key={u.uid} className="flex items-center gap-3 mb-2">
                 <span style={{ fontSize: '1.2rem' }}>{['🥇','🥈','🥉'][i]}</span>
                 <div style={{ position: 'relative' }}>
-                  <Avatar src={u.avatar} name={u.username} size={32} />
+                  <Avatar src={u.avatar} name={u.username} size={46} />
                 </div>
                 <span style={{ flex: 1 }}>{u.username}</span>
                 <span className="text-xs text-muted">Úr. {u.level} · {u.xp}/{XP_PER_LEVEL}</span>

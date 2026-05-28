@@ -6,28 +6,7 @@ import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
 import Avatar from '../components/Avatar'
-
-// Zmenší obrázek na čtverec a vrátí ho jako data URL (aby se vešel do Firestore)
-function resizeImage(file, size = 256) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file)
-    const img = new Image()
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      const canvas = document.createElement('canvas')
-      canvas.width = size
-      canvas.height = size
-      const ctx = canvas.getContext('2d')
-      const min = Math.min(img.width, img.height)
-      const sx = (img.width - min) / 2
-      const sy = (img.height - min) / 2
-      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size)
-      resolve(canvas.toDataURL('image/jpeg', 0.85))
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load-failed')) }
-    img.src = url
-  })
-}
+import AvatarEditor from '../components/AvatarEditor'
 
 export default function Profil() {
   const { userData, levelsHidden } = useAuth()
@@ -35,6 +14,7 @@ export default function Profil() {
   const navigate = useNavigate()
   const [sendingCurse, setSendingCurse] = useState(null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [editorFile, setEditorFile] = useState(null)
 
   if (!userData) return null
 
@@ -43,17 +23,24 @@ export default function Profil() {
   const tokens = (userData.inventory || []).filter(i => i.type === 'spin_token')
   const pendingCurses = (userData.inventory || []).filter(i => i.type === 'pending_curse')
 
-  const handleAvatarFile = async (e) => {
+  const handleAvatarFile = (e) => {
     const file = e.target.files?.[0]
     e.target.value = '' // ať jde nahrát stejný soubor znovu
     if (!file) return
     if (!file.type.startsWith('image/')) { toast('Vyber prosím obrázek.', 'error'); return }
+    setEditorFile(file) // otevři editor – uloží se až po posunu a potvrzení
+  }
+
+  const handleAvatarSave = async (dataUrl) => {
+    if (dataUrl.length > 900000) {
+      toast('Obrázek je moc velký, zkus menší přiblížení nebo jinou fotku.', 'error')
+      return
+    }
     setUploadingAvatar(true)
     try {
-      const dataUrl = await resizeImage(file, 256)
-      if (dataUrl.length > 900000) { toast('Obrázek je moc velký, zkus jiný.', 'error'); return }
       await updateUserAvatar(userData.uid, dataUrl)
       toast('Avatar nastaven! 🖼️', 'success')
+      setEditorFile(null)
     } catch { toast('Nepodařilo se nahrát obrázek.', 'error') }
     finally { setUploadingAvatar(false) }
   }
@@ -67,7 +54,7 @@ export default function Profil() {
     <div className="page">
       <div className="card card-gold" style={{ textAlign: 'center', padding: '1.75rem' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
-          <Avatar src={userData.avatar} name={userData.username} size={84} />
+          <Avatar src={userData.avatar} name={userData.username} size={120} />
         </div>
         <h2 className="heading" style={{ fontSize: '1.4rem', color: 'var(--gold)', marginBottom: '0.25rem' }}>{userData.username}</h2>
 
@@ -148,6 +135,15 @@ export default function Profil() {
 
       {sendingCurse && (
         <SendCurseModal curse={sendingCurse} senderUid={userData.uid} onClose={() => setSendingCurse(null)} toast={toast} />
+      )}
+
+      {editorFile && (
+        <AvatarEditor
+          file={editorFile}
+          saving={uploadingAvatar}
+          onCancel={() => { if (!uploadingAvatar) setEditorFile(null) }}
+          onSave={handleAvatarSave}
+        />
       )}
     </div>
   )
