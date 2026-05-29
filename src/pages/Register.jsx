@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast'
 export default function Register() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [password2, setPassword2] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
@@ -16,6 +17,7 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (password.length < 6) { setError('Heslo musí mít alespoň 6 znaků.'); return }
+    if (password !== password2) { setError('Hesla se neshodují.'); return }
     if (username.trim().length < 2) { setError('Jméno musí mít alespoň 2 znaky.'); return }
     setLoading(true)
     try {
@@ -63,6 +65,11 @@ export default function Register() {
             <div className="form-group">
               <label className="form-label">Heslo (min. 6 znaků)</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Heslo znovu</label>
+              <input type="password" value={password2} onChange={e => setPassword2(e.target.value)}
                 placeholder="••••••••" required />
             </div>
             {error && <p className="form-error">{error}</p>}
