@@ -312,8 +312,8 @@ export const sendChatMessage = async (uid, username, text) => {
 export const deleteChatMessage = (msgId) => deleteDoc(doc(db, 'chat', msgId))
 export const pinChatMessage = (msgId, pinned) => updateDoc(doc(db, 'chat', msgId), { pinned })
 
-export const subscribeToChatMessages = (callback) => {
-  const q = query(collection(db, 'chat'), orderBy('createdAt', 'desc'), limit(80))
+export const subscribeToChatMessages = (callback, max = 200) => {
+  const q = query(collection(db, 'chat'), orderBy('createdAt', 'desc'), limit(max))
   return onSnapshot(q, (snap) => {
     const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() })).reverse()
     callback(msgs)
