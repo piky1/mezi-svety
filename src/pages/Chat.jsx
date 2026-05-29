@@ -1,13 +1,20 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { subscribeToChatMessages, sendChatMessage, deleteChatMessage, pinChatMessage } from '../firebase/db'
 import { useAuth } from '../hooks/useAuth'
+
+const PAGE = 10 // kolik zpráv se zobrazí / přidá jedním kliknutím
 
 export default function Chat() {
   const { userData } = useAuth()
   const [messages, setMessages] = useState([])
+  const [visibleCount, setVisibleCount] = useState(PAGE)
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const scrollRef = useRef(null)
   const bottomRef = useRef(null)
+  const loadingMore = useRef(false)   // právě donačítáme starší zprávy
+  const prevHeight = useRef(0)        // výška scrollu před donačtením
+  const prevLastId = useRef(null)     // id poslední zprávy (pro detekci nové)
   const isAdmin = userData?.isAdmin
 
   useEffect(() => {
@@ -15,9 +22,31 @@ export default function Chat() {
     return unsub
   }, [])
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages.length])
+  // Zobrazené zprávy = jen posledních `visibleCount`
+  const visibleMessages = messages.slice(Math.max(0, messages.length - visibleCount))
+  const hasMore = messages.length > visibleMessages.length
+
+  // Scroll: po donačtení starších zpráv drž pozici, jinak skoč dolů na novou zprávu
+  useLayoutEffect(() => {
+    const el = scrollRef.current
+    if (loadingMore.current && el) {
+      el.scrollTop = el.scrollHeight - prevHeight.current
+      loadingMore.current = false
+      prevLastId.current = messages[messages.length - 1]?.id ?? prevLastId.current
+      return
+    }
+    const lastId = messages[messages.length - 1]?.id
+    if (lastId && lastId !== prevLastId.current) {
+      bottomRef.current?.scrollIntoView({ behavior: prevLastId.current ? 'smooth' : 'auto' })
+      prevLastId.current = lastId
+    }
+  }, [messages, visibleCount])
+
+  const handleLoadMore = () => {
+    if (scrollRef.current) prevHeight.current = scrollRef.current.scrollHeight
+    loadingMore.current = true
+    setVisibleCount(c => c + PAGE)
+  }
 
   const handleSend = async (e) => {
     e.preventDefault()
@@ -67,7 +96,7 @@ export default function Chat() {
       )}
 
       {/* Seznam zpráv */}
-      <div style={{
+      <div ref={scrollRef} style={{
         flex: 1, overflowY: 'auto',
         display: 'flex', flexDirection: 'column',
         gap: '0.4rem', paddingBottom: '0.5rem', minHeight: 0,
@@ -78,7 +107,14 @@ export default function Chat() {
           </p>
         )}
 
-        {messages.map(msg => {
+        {hasMore && (
+          <button onClick={handleLoadMore} className="btn btn-ghost"
+            style={{ alignSelf: 'center', fontSize: '0.78rem', padding: '0.3rem 0.9rem', marginBottom: '0.25rem', flexShrink: 0 }}>
+            ↑ Načíst starších {PAGE} zpráv
+          </button>
+        )}
+
+        {visibleMessages.map(msg => {
           const isMe = msg.uid === userData?.uid
           const isSystem = msg.type === 'system'
 
