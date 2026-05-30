@@ -70,8 +70,8 @@ export default function Postavy() {
                   </span>
                 ))}
                 {uCursesInv.map(c => (
-                  <span key={c.id} className={`curse-chip curse-${c.curseId}`}>
-                    {c.curseIcon} {c.curseName}{c.tierName ? ` / ${c.tierName}` : ''}
+                  <span key={c.id} className={`curse-chip curse-rarity-${c.rarity || 'common'}`}>
+                    {c.curseIcon} {c.curseName}
                   </span>
                 ))}
               </div>
@@ -87,7 +87,7 @@ export default function Postavy() {
               {cursesInInventory.map(curse => (
                 <button key={curse.id} className="btn btn-red" style={{ fontSize: '0.75rem' }}
                   onClick={() => handleSendCurse(curse, u.uid)}>
-                  {curse.curseIcon} {curse.curseName}{curse.tierName ? ` / ${curse.tierName}` : ''}
+                  {curse.curseIcon} {curse.curseName}
                 </button>
               ))}
             </div>

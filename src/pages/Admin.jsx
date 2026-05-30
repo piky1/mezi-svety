@@ -3,7 +3,7 @@ import {
   subscribeToAllUsers, subscribeToPendingUsers, approveUser, rejectUser,
   addXpToUser, removeXpFromUser, removeCurseFromUser, removeInventoryItem,
   deleteUserData, cleanExpiredCurses, giftCurseToUser, castCurseOnUser,
-  giveTokenToUser, setLevelsHidden, CURSES_15, XP_PER_LEVEL
+  giveTokenToUser, setLevelsHidden, CURSES, RARITIES, XP_PER_LEVEL
 } from '../firebase/db'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
@@ -218,9 +218,9 @@ export default function Admin() {
                         </button>
                       ))}
                       {cursesInv.map(c => (
-                        <button key={c.id} className={`curse-chip curse-${c.curseId}`} style={{ cursor: 'pointer' }}
+                        <button key={c.id} className={`curse-chip curse-rarity-${c.rarity || 'common'}`} style={{ cursor: 'pointer' }}
                           onClick={() => removeInventoryItem(u.uid, c.id).then(() => toast('Kletba odebrána.', 'info'))}>
-                          {c.curseIcon} {c.curseName}{c.tierName ? ` / ${c.tierName}` : ''} ✕
+                          {c.curseIcon} {c.curseName} ✕
                         </button>
                       ))}
                     </div>
@@ -233,9 +233,9 @@ export default function Admin() {
                     <p className="text-xs text-muted mb-1">Aktivní kletby (✕ = odebrat):</p>
                     <div className="flex flex-wrap gap-2">
                       {activeCurses.map(c => (
-                        <button key={c.id} className={`curse-chip curse-${c.curseId}`} style={{ cursor: 'pointer', background: 'none' }}
+                        <button key={c.id} className={`curse-chip curse-rarity-${c.rarity || 'common'}`} style={{ cursor: 'pointer', background: 'none' }}
                           onClick={() => removeCurseFromUser(u.uid, c.id).then(() => toast('Kletba odstraněna.', 'success'))}>
-                          {c.curseIcon} {c.curseName}{c.tierName ? ` / ${c.tierName}` : ''} ✕
+                          {c.curseIcon} {c.curseName} ✕
                         </button>
                       ))}
                     </div>
@@ -278,20 +278,17 @@ export default function Admin() {
 
 function GiftCurseModal({ targetUid, targetUsername, mode, adminUid, onClose, toast }) {
   const [selectedCurse, setSelectedCurse] = useState('')
-  const [selectedTier, setSelectedTier] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const curse = CURSES_15.find(c => c.id === selectedCurse)
-
   const handleConfirm = async () => {
-    if (!selectedCurse || !selectedTier) { toast('Vyber kletbu i tier.', 'error'); return }
+    if (!selectedCurse) { toast('Vyber kletbu.', 'error'); return }
     setLoading(true)
     try {
       if (mode === 'gift') {
-        await giftCurseToUser(targetUid, selectedCurse, selectedTier)
+        await giftCurseToUser(targetUid, selectedCurse)
         toast(`Kletba darována ${targetUsername} do inventáře.`, 'success')
       } else {
-        await castCurseOnUser(adminUid, targetUid, selectedCurse, selectedTier)
+        await castCurseOnUser(adminUid, targetUid, selectedCurse)
         toast(`Kletba seslána na ${targetUsername}!`, 'success')
       }
       onClose()
@@ -301,61 +298,45 @@ function GiftCurseModal({ targetUid, targetUsername, mode, adminUid, onClose, to
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxHeight: '85vh', overflowY: 'auto' }}>
         <h3 className="heading mb-1" style={{ fontSize: '1.05rem', color: 'var(--gold)' }}>
           {mode === 'gift' ? '🎁 Darovat kletbu' : '⚡ Seslat kletbu'}
         </h3>
         <p className="text-dim text-sm mb-3">Cíl: <strong style={{ color: 'var(--text)' }}>{targetUsername}</strong></p>
 
         <div className="form-group">
-          <label className="form-label">Typ kletby</label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {CURSES_15.map(c => (
-              <label key={c.id} style={{
-                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                padding: '0.5rem 0.75rem',
-                background: selectedCurse === c.id ? 'rgba(201,168,76,0.12)' : 'var(--bg3)',
-                border: `1px solid ${selectedCurse === c.id ? 'var(--gold-dim)' : 'var(--border)'}`,
-                borderRadius: 'var(--radius)', cursor: 'pointer',
-              }}>
-                <input type="radio" name="curse" value={c.id} checked={selectedCurse === c.id}
-                  onChange={() => { setSelectedCurse(c.id); setSelectedTier('') }}
-                  style={{ accentColor: 'var(--gold)' }} />
-                <span style={{ fontSize: '1.1rem' }}>{c.icon}</span>
-                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.85rem' }}>{c.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {curse && (
-          <div className="form-group mt-2">
-            <label className="form-label">Tier</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              {curse.tiers.map(t => (
-                <label key={t.id} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.6rem',
-                  padding: '0.4rem 0.75rem',
-                  background: selectedTier === t.id ? 'rgba(136,68,170,0.15)' : 'var(--bg3)',
-                  border: `1px solid ${selectedTier === t.id ? 'rgba(136,68,170,0.4)' : 'var(--border)'}`,
-                  borderRadius: 'var(--radius)', cursor: 'pointer',
-                }}>
-                  <input type="radio" name="tier" value={t.id} checked={selectedTier === t.id}
-                    onChange={() => setSelectedTier(t.id)}
-                    style={{ accentColor: 'var(--purple2)' }} />
-                  <span>{t.icon}</span>
-                  <span className="text-sm">{t.name}</span>
-                </label>
-              ))}
+          <label className="form-label">Kletba</label>
+          {RARITIES.map(rar => (
+            <div key={rar.id} style={{ marginBottom: '0.6rem' }}>
+              <div className="flex items-center gap-2 mb-1" style={{ color: rar.wheelColor }}>
+                <span>{rar.icon}</span>
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.8rem', fontWeight: 700 }}>{rar.name}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                {CURSES.filter(c => c.rarity === rar.id).map(c => (
+                  <label key={c.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                    padding: '0.4rem 0.7rem',
+                    background: selectedCurse === c.id ? 'rgba(201,168,76,0.12)' : 'var(--bg3)',
+                    border: `1px solid ${selectedCurse === c.id ? 'var(--gold-dim)' : 'var(--border)'}`,
+                    borderRadius: 'var(--radius)', cursor: 'pointer',
+                  }}>
+                    <input type="radio" name="curse" value={c.id} checked={selectedCurse === c.id}
+                      onChange={() => setSelectedCurse(c.id)} style={{ accentColor: 'var(--gold)' }} />
+                    <span style={{ fontSize: '1.05rem' }}>{c.icon}</span>
+                    <span style={{ fontSize: '0.82rem' }}>{c.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
         <div className="flex gap-2 mt-3">
           <button className="btn btn-ghost flex-1" onClick={onClose}>Zrušit</button>
           <button
             className={`btn flex-1 ${mode === 'gift' ? 'btn-gold' : 'btn-red'}`}
-            onClick={handleConfirm} disabled={loading || !selectedCurse || !selectedTier}>
+            onClick={handleConfirm} disabled={loading || !selectedCurse}>
             {loading ? '...' : mode === 'gift' ? '🎁 Darovat' : '⚡ Seslat'}
           </button>
         </div>

@@ -118,8 +118,7 @@ export default function Profil() {
               <div key={item.id} className="flex items-center justify-between mb-2 p-2"
                 style={{ background: 'var(--bg3)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
                 <div>
-                  <span className={`curse-chip curse-${item.curseId}`}>{item.curseIcon} {item.curseName}</span>
-                  {item.tierName && <span className="text-xs text-muted" style={{ marginLeft: 6 }}>{item.tierIcon} {item.tierName}</span>}
+                  <span className={`curse-chip curse-rarity-${item.rarity || 'common'}`}>{item.curseIcon} {item.curseName}</span>
                 </div>
                 <button className="btn btn-red" style={{ fontSize: '0.75rem', padding: '0.3rem 0.7rem' }}
                   onClick={() => setSendingCurse(item)}>Vyslat</button>
@@ -179,8 +178,7 @@ function SendCurseModal({ curse, senderUid, onClose, toast }) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h3 className="heading mb-3" style={{ fontSize: '1.1rem', color: 'var(--gold)' }}>Vyslat kletbu {curse.curseIcon}</h3>
         <p className="text-dim text-sm mb-3">
-          <span className={`curse-chip curse-${curse.curseId}`}>{curse.curseIcon} {curse.curseName}</span>
-          {curse.tierName && <span className="text-xs text-muted" style={{ marginLeft: 6 }}>{curse.tierIcon} {curse.tierName}</span>}
+          <span className={`curse-chip curse-rarity-${curse.rarity || 'common'}`}>{curse.curseIcon} {curse.curseName}</span>
         </p>
         <div className="form-group">
           <label className="form-label">Vyber cíl</label>
