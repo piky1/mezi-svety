@@ -31,32 +31,33 @@ export const RARITY_BY_ID = Object.fromEntries(RARITIES.map(r => [r.id, r]))
 export const CURSES = [
   // ── COMMON (šedá) ──
   { id: 'milan',        rarity: 'common', icon: '🪵', name: 'Milanova kletba',            desc: 'Nosíš s sebou klacek.' },
-  { id: 'piky',         rarity: 'common', icon: '👓', name: 'Pikyho prokletí',            desc: 'Vylosují se ti postižený brýle.' },
-  { id: 'klid_pohoda',  rarity: 'common', icon: '🎧', name: 'Kletba klidu, míru a pohody', desc: 'Špunty do uší.' },
+  { id: 'piky',         rarity: 'common', icon: '👓', name: 'Pikyho prokletí',            desc: 'Dostaneš speciální brýle.' },
+  { id: 'klid_pohoda',  rarity: 'common', icon: '🎧', name: 'Kletba klidu, míru a pohody', desc: 'Dostaneš špunty do uší.' },
   { id: 'cringe',       rarity: 'common', icon: '💀', name: 'Kletba smrti cringem',       desc: 'V každé větě musíš říct „skibidi".' },
   { id: 'definitni',    rarity: 'common', icon: '✅', name: 'Definitní kletba',           desc: 'Odpovídáš jenom ano/ne.' },
-  { id: 'redukcni',     rarity: 'common', icon: '🤚', name: 'Redukční kletba',            desc: 'Zavázání ruky k pasu.' },
+  { id: 'redukcni',     rarity: 'common', icon: '🤚', name: 'Redukční kletba',            desc: 'Máš přivázanou ruku k pasu.' },
   { id: 'ewa_farna',    rarity: 'common', icon: '🎤', name: 'Ewa Farná kletba',           desc: 'Všechno, co chceš říct, musíš zazpívat.' },
-  { id: 'stary_tabor',  rarity: 'common', icon: '✋', name: 'Kletba starého tábora',      desc: 'Můžeš někoho zastavit na 2 minuty.' },
-  { id: 'oralni',       rarity: 'common', icon: '🤐', name: 'Orální kletba',              desc: 'Jsi potichu. Pokud promluvíš, vylosuje se ti jedna z legendary kleteb.' },
-  { id: 'chameleon',    rarity: 'common', icon: '🦎', name: 'Chameleoní kletba',          desc: 'Musíš být skrytý za větví.' },
-  { id: 'superhvezda',  rarity: 'common', icon: '🖊️', name: 'Kletba superhvězdy',         desc: 'Máš fixu a musíš se podepsat na lidi, se kterými vedeš konverzaci.' },
+  { id: 'stary_tabor',  rarity: 'common', icon: '✋', name: 'Kletba starého tábora',      desc: 'Dostaneš stopku na 2 minuty.' },
+  { id: 'oralni',       rarity: 'common', icon: '🤐', name: 'Orální kletba',              desc: 'Musíš být potichu. Pokud promluvíš, vylosuje se ti jedna z legendary kleteb.' },
+  { id: 'chameleon',    rarity: 'common', icon: '🦎', name: 'Chameleoní kletba',          desc: 'Musíš být skrytý/á za větví.' },
+  { id: 'superhvezda',  rarity: 'common', icon: '🖊️', name: 'Kletba superhvězdy',         desc: 'Musíš se podepsat na lidi, se kterými vedeš konverzaci.' },
 
   // ── RARE (modrá) ──
   { id: 'drevorubec',   rarity: 'rare', icon: '🪓', name: 'Kletba nadšeného dřevorubce', desc: 'Nosíš s sebou špalek.' },
   { id: 'velka_67',     rarity: 'rare', icon: '🙌', name: 'Kletba velké šedesát sedmičky', desc: 'Kdykoliv mluvíš, děláš rukama 67.' },
   { id: 'hadankar',     rarity: 'rare', icon: '❓', name: 'Kletba hádankáře',            desc: 'Odpovídáš otázkami.' },
-  { id: 'medved',       rarity: 'rare', icon: '🐻', name: 'Kletba medvěda',              desc: 'Medvědí pouta (udělat na víkendovce).' },
+  { id: 'hipizak',      rarity: 'rare', icon: '🧦', name: 'Kletba hipízáckého naturalisty', desc: 'Nesmíš mít na sobě boty.' },
+  { id: 'medved',       rarity: 'rare', icon: '🐻', name: 'Kletba medvěda',              desc: 'Dostaneš medvědí pouta.' },
   { id: 'saturnin',     rarity: 'rare', icon: '⭕', name: 'Saturninova kletba',          desc: 'Nosíš obruč.' },
   { id: 'policejni',    rarity: 'rare', icon: '👮', name: 'Policejní kletba',            desc: 'Nosíš policejní kanady.' },
   { id: 'mimozeman',    rarity: 'rare', icon: '👽', name: 'Mimozemská kletba',           desc: 'Nesmíš používat reálná slova.' },
-  { id: 'domina',       rarity: 'rare', icon: '⛓️', name: 'Domina kletba',               desc: 'Člověk na vodítku. Nutno seslat do 24 h od získání, jinak se losuje legendary kletba.' },
-  { id: 'vodnik',       rarity: 'rare', icon: '🌊', name: 'Vodníkova kletba',            desc: 'Celý se ponoříš do Odry.' },
+  { id: 'domina',       rarity: 'rare', icon: '⛓️', name: 'Domina kletba',               desc: 'Jsi přivázaný/á na vodítko k tomu, kdo na tebe kletbu seslal. Nutno seslat do 24 h od získání, jinak se losuje legendary kletba.' },
+  { id: 'vodnik',       rarity: 'rare', icon: '🌊', name: 'Vodníkova kletba',            desc: 'Celý/á se ponoříš do Odry.' },
 
   // ── LEGENDARY (zlatá) ──
   { id: 'mucednik',     rarity: 'legendary', icon: '✝️', name: 'Kletba mučedníka',       desc: 'Nosíš s sebou kříž.' },
-  { id: 'brainrot',     rarity: 'legendary', icon: '🧠', name: 'Kletba brainrotu',       desc: 'Totálně jsi přišel o rozum – jen slintáš, kýveš a děláš 67 rukama na jakoukoliv interakci se světem.' },
-  { id: 'trestanec',    rarity: 'legendary', icon: '👟', name: 'Trestanecká kletba',     desc: 'Zavaž si do sebe tkaničky (půjdeš jak vězeň).' },
+  { id: 'brainrot',     rarity: 'legendary', icon: '🧠', name: 'Kletba brainrotu',       desc: 'Totálně jsi přišel/přišla o rozum – jen slintáš, kýveš a děláš 67 rukama na jakoukoliv interakci se světem.' },
+  { id: 'trestanec',    rarity: 'legendary', icon: '👟', name: 'Trestanecká kletba',     desc: 'Zavaž si k sobě tkaničky (půjdeš jako vězeň).' },
   { id: 'yes_man',      rarity: 'legendary', icon: '👍', name: 'Yes Man kletba',         desc: 'Stáváš se yes manem.' },
   { id: 'nejhorsi',     rarity: 'legendary', icon: '😱', name: 'Nejhorší kletba',        desc: 'Dostaneš na starost Milana.' },
   { id: 'vlk',          rarity: 'legendary', icon: '🐺', name: 'Kletba vlka',            desc: 'Chodíš po čtyřech. Když se zastavíš, jednou rukou můžeš něco dělat.' },
@@ -64,8 +65,8 @@ export const CURSES = [
 
   // ── EXOTIC (fialová) ──
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
-  { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Leťák.' },
-  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nehni se od Gusa 1 hodinu.' },
+  { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
+  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu.' },
 ]
 
 export const CURSE_BY_ID = Object.fromEntries(CURSES.map(c => [c.id, c]))

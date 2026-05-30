@@ -9,18 +9,26 @@ const SPIN_MS = 4500
 /**
  * Statické kolo se zobrazeným natočením `rotation` (ve stupních).
  */
-function Wheel({ items, rotation, size = 230 }) {
+function Wheel({ items, rotation, size = 230, weights = null }) {
   const n = items.length
   const cx = size / 2, cy = size / 2, r = size / 2 - 6
   if (n === 0) return null
 
+  const total = weights ? weights.reduce((a, b) => a + b, 0) : n
+  let acc = 0
   const slices = items.map((item, i) => {
-    const a0 = (i / n) * 2 * Math.PI - Math.PI / 2
-    const a1 = ((i + 1) / n) * 2 * Math.PI - Math.PI / 2
+    const w = weights ? weights[i] : 1
+    const f0 = acc / total
+    acc += w
+    const f1 = acc / total
+    const a0 = f0 * 2 * Math.PI - Math.PI / 2
+    const a1 = f1 * 2 * Math.PI - Math.PI / 2
     const x1 = cx + r * Math.cos(a0), y1 = cy + r * Math.sin(a0)
     const x2 = cx + r * Math.cos(a1), y2 = cy + r * Math.sin(a1)
     const mid = (a0 + a1) / 2
-    const tx = cx + r * 0.66 * Math.cos(mid), ty = cy + r * 0.66 * Math.sin(mid)
+    // úzké dílky: posuň ikonu blíž k okraji, ať se vejde
+    const iconR = (f1 - f0) < 0.12 ? r * 0.78 : r * 0.66
+    const tx = cx + iconR * Math.cos(mid), ty = cy + iconR * Math.sin(mid)
     const large = (a1 - a0) > Math.PI ? 1 : 0
     const d = n === 1
       ? `M ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy} A ${r} ${r} 0 1 1 ${cx - r} ${cy}`
@@ -71,6 +79,24 @@ function calcTargetRotation(targetIndex, totalSlices, currentRotation) {
 
 function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4) }
 
+/**
+ * Cílový úhel pro kolo s RŮZNĚ velkými dílky (dílek i má váhu weights[i]).
+ * Zarovná střed dílku targetIndex pod šipku; jitter zůstane uvnitř dílku.
+ */
+function calcTargetRotationWeighted(targetIndex, weights, currentRotation) {
+  const total = weights.reduce((a, b) => a + b, 0)
+  let before = 0
+  for (let i = 0; i < targetIndex; i++) before += weights[i]
+  const f0 = before / total
+  const f1 = (before + weights[targetIndex]) / total
+  const centerFrac = (f0 + f1) / 2
+  const sliceDeg = (f1 - f0) * 360
+  const targetMod = -centerFrac * 360
+  const fullTurns = 4 * 360
+  const jitter = (Math.random() - 0.5) * (sliceDeg * 0.5)
+  return currentRotation + fullTurns + targetMod + jitter - (currentRotation % 360)
+}
+
 export default function SpinPage() {
   const { userData } = useAuth()
   const toast = useToast()
@@ -119,7 +145,7 @@ export default function SpinPage() {
     } catch (err) {
       toast('Chyba: ' + err.message, 'error'); setState('idle'); return
     }
-    const targetRot = calcTargetRotation(index, RARITIES.length, rotation1)
+    const targetRot = calcTargetRotationWeighted(index, RARITIES.map(r => r.weight), rotation1)
     await animateWheel(rotation1, targetRot, SPIN_MS, setRotation1)
     setResultRarity(rarity)
     toast(`${rarity.icon} ${rarity.name} — teď zatoč kletbu!`, 'info')
@@ -177,7 +203,7 @@ export default function SpinPage() {
                 Máš <span className="text-gold font-cinzel">{tokens.length}</span> {tokens.length === 1 ? 'token' : 'tokeny'}
               </p>
               <p className="text-xs text-muted mb-4">1. kolo — vzácnost</p>
-              <Wheel items={RARITIES} rotation={rotation1} />
+              <Wheel items={RARITIES} weights={RARITIES.map(r => r.weight)} rotation={rotation1} />
               <button className="btn btn-gold mt-4" onClick={handleSpinRarity}
                 disabled={effectiveState === 'spinning1'} style={{ minWidth: 200 }}>
                 {effectiveState === 'spinning1' ? '⏳ Točí se...' : '🎡 Zatočit — vzácnost'}
@@ -235,7 +261,6 @@ export default function SpinPage() {
             <div className="flex items-center gap-2 mb-2" style={{ color: rar.wheelColor }}>
               <span>{rar.icon}</span>
               <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.9rem', fontWeight: 700 }}>{rar.name}</span>
-              <span className="text-xs text-muted">· {rar.weight} %</span>
             </div>
             <div style={{ paddingLeft: '0.4rem', display: 'flex', flexDirection: 'column', gap: 5 }}>
               {cursesOfRarity(rar.id).map(c => (
