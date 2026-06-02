@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { logoutUser } from '../firebase/db'
 import { useToast } from './Toast'
+import Logo from './Logo'
 
 export default function Nav() {
   const { userData } = useAuth()
@@ -18,7 +19,7 @@ export default function Nav() {
 
   return (
     <nav className="nav">
-      <span className="nav-title">✦ Mezi Světy</span>
+      <Logo size={26} />
       <div className="nav-links">
         <NavLink to="/" className={({ isActive }) => `nav-btn${isActive ? ' active' : ''}`}>Postavy</NavLink>
         <NavLink to="/profil" className={({ isActive }) => `nav-btn${isActive ? ' active' : ''}`}>Profil</NavLink>

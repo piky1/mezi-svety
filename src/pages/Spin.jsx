@@ -6,10 +6,55 @@ import { useToast } from '../components/Toast'
 const SLICE_COLORS = ['#7040a0', '#4488bb', '#bb6040', '#40a060', '#c09030', '#c04060', '#5060c0', '#a04080']
 const SPIN_MS = 4500
 
+const RARITY_LEVEL = { common: 1, rare: 2, legendary: 3, exotic: 4 }
+
+/**
+ * Broušený drahokam. Čím vyšší úroveň vzácnosti, tím víc fasetek
+ * (a u exotic navíc jiskra). Kreslí se vystředěný kolem (0,0).
+ */
+function Gem({ base, tab, str, level = 1 }) {
+  const W = 14, H = 17
+  const outline = `-7,${-H} 7,${-H} ${W},0 7,${H} -7,${H} ${-W},0`
+  const table = `-7,${-H} 7,${-H} 4,-5 -4,-5`
+  return (
+    <g>
+      <polygon points={outline} fill={base} stroke={str} strokeWidth="1.4" strokeLinejoin="round" />
+      <polygon points={table} fill={tab} />
+      {level >= 3 && <polygon points={`-7,${-H} 0,${-H} 0,-5 -4,-5`} fill={tab} opacity="0.45" />}
+      <g stroke={str} strokeWidth="0.7" opacity="0.85" fill="none">
+        <line x1={-W} y1="0" x2="-4" y2="-5" />
+        <line x1={W} y1="0" x2="4" y2="-5" />
+        <line x1="-4" y1="-5" x2="0" y2={H} />
+        <line x1="4" y1="-5" x2="0" y2={H} />
+        {level >= 2 && <line x1={-W} y1="0" x2={W} y2="0" />}
+        {level >= 2 && <line x1="0" y1={-H} x2="0" y2="-5" />}
+        {level >= 3 && <line x1={-W} y1="0" x2="0" y2={H} />}
+        {level >= 3 && <line x1={W} y1="0" x2="0" y2={H} />}
+        {level >= 4 && <line x1="-7" y1={H} x2="-4" y2="-5" />}
+        {level >= 4 && <line x1="7" y1={H} x2="4" y2="-5" />}
+      </g>
+      {level >= 4 && (
+        <path d="M -5 -12 l1 2.3 2.3 1 -2.3 1 -1 2.3 -1 -2.3 -2.3 -1 2.3 -1 z" fill="#fff" opacity="0.9" />
+      )}
+    </g>
+  )
+}
+
+// Drahokam vzácnosti jako samostatné inline SVG (pro popisky mimo kolo)
+function RarityGem({ rarity, size = 38 }) {
+  if (!rarity?.gem) return <span style={{ fontSize: size * 0.7 }}>{rarity?.icon}</span>
+  return (
+    <svg width={size} height={size} viewBox="-18 -20 36 40" aria-hidden="true"
+      style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))', display: 'block' }}>
+      <Gem {...rarity.gem} level={RARITY_LEVEL[rarity.id]} />
+    </svg>
+  )
+}
+
 /**
  * Statické kolo se zobrazeným natočením `rotation` (ve stupních).
  */
-function Wheel({ items, rotation, size = 230, weights = null }) {
+function Wheel({ items, rotation, size = 230, weights = null, renderIcon = null }) {
   const n = items.length
   const cx = size / 2, cy = size / 2, r = size / 2 - 6
   if (n === 0) return null
@@ -53,8 +98,10 @@ function Wheel({ items, rotation, size = 230, weights = null }) {
           {slices.map((s, i) => (
             <g key={i}>
               <path d={s.d} fill={s.color} stroke="rgba(0,0,0,0.4)" strokeWidth="2" />
-              <text x={s.tx} y={s.ty} textAnchor="middle" dominantBaseline="middle"
-                fontSize={n > 6 ? 15 : n > 4 ? 18 : 24} style={{ pointerEvents: 'none' }}>{s.icon}</text>
+              {renderIcon
+                ? renderIcon(items[i], s.tx, s.ty)
+                : <text x={s.tx} y={s.ty} textAnchor="middle" dominantBaseline="middle"
+                    fontSize={n > 6 ? 15 : n > 4 ? 18 : 24} style={{ pointerEvents: 'none' }}>{s.icon}</text>}
             </g>
           ))}
           <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--gold)" strokeWidth="3" opacity="0.5" />
@@ -203,7 +250,13 @@ export default function SpinPage() {
                 Máš <span className="text-gold font-cinzel">{tokens.length}</span> {tokens.length === 1 ? 'token' : 'tokeny'}
               </p>
               <p className="text-xs text-muted mb-4">1. kolo — vzácnost</p>
-              <Wheel items={RARITIES} weights={RARITIES.map(r => r.weight)} rotation={rotation1} />
+              <Wheel items={RARITIES} weights={RARITIES.map(r => r.weight)} rotation={rotation1}
+                renderIcon={(item, x, y) => (
+                  <g transform={`translate(${x} ${y})`} style={{ pointerEvents: 'none' }}>
+                    <circle r="17" fill="rgba(0,0,0,0.2)" />
+                    <g transform="scale(0.82)"><Gem {...item.gem} level={RARITY_LEVEL[item.id]} /></g>
+                  </g>
+                )} />
               <button className="btn btn-gold mt-4" onClick={handleSpinRarity}
                 disabled={effectiveState === 'spinning1'} style={{ minWidth: 200 }}>
                 {effectiveState === 'spinning1' ? '⏳ Točí se...' : '🎡 Zatočit — vzácnost'}
@@ -217,7 +270,7 @@ export default function SpinPage() {
               {shownRarity && (
                 <div style={{ marginBottom: '1.25rem' }}>
                   <p className="text-xs text-muted mb-1">Padla vzácnost:</p>
-                  <div style={{ fontSize: '2rem' }}>{shownRarity.icon}</div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}><RarityGem rarity={shownRarity} size={50} /></div>
                   <div className="font-cinzel mt-1" style={{ color: shownRarity.wheelColor, fontSize: '1.05rem' }}>{shownRarity.name}</div>
                 </div>
               )}
@@ -235,8 +288,8 @@ export default function SpinPage() {
             <div>
               <p className="text-xs text-muted mb-2">Výsledek:</p>
               {doneRarity && (
-                <div className="font-cinzel" style={{ color: doneRarity.wheelColor, fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                  {doneRarity.icon} {doneRarity.name}
+                <div className="font-cinzel" style={{ color: doneRarity.wheelColor, fontSize: '0.85rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
+                  <RarityGem rarity={doneRarity} size={20} /> {doneRarity.name}
                 </div>
               )}
               <div style={{ fontSize: '2.6rem' }}>{resultCurse.icon}</div>
@@ -259,7 +312,7 @@ export default function SpinPage() {
         {RARITIES.map(rar => (
           <div key={rar.id} style={{ marginBottom: '1rem' }}>
             <div className="flex items-center gap-2 mb-2" style={{ color: rar.wheelColor }}>
-              <span>{rar.icon}</span>
+              <RarityGem rarity={rar} size={22} />
               <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.9rem', fontWeight: 700 }}>{rar.name}</span>
             </div>
             <div style={{ paddingLeft: '0.4rem', display: 'flex', flexDirection: 'column', gap: 5 }}>

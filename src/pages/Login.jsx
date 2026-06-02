@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginUser } from '../firebase/db'
 import { useToast } from '../components/Toast'
+import Logo from '../components/Logo'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -29,11 +30,8 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div style={{ width: '100%', maxWidth: 380 }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>⚔️</div>
-          <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.6rem', color: 'var(--gold)', textShadow: '0 0 30px rgba(201,168,76,0.4)' }}>
-            Mezi Světy
-          </h1>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Logo size={70} stack />
           <p className="text-dim text-sm mt-1">Přihlas se ke svému příběhu</p>
         </div>
         <div className="card card-gold">
