@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   subscribeToAllUsers, subscribeToPendingUsers, approveUser, rejectUser,
   addXpToUser, removeXpFromUser, removeCurseFromUser, removeInventoryItem,
   deleteUserData, cleanExpiredCurses, giftCurseToUser, castCurseOnUser,
-  giveTokenToUser, setLevelsHidden, CURSES, RARITIES, XP_PER_LEVEL
+  giveTokenToUser, setLevelsHidden, CURSES, RARITIES, cursesOfRarity, XP_PER_LEVEL
 } from '../firebase/db'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import Avatar from '../components/Avatar'
 import { useNavigate } from 'react-router-dom'
+import {
+  Wheel, RarityGem, SPIN_MS, calcTargetRotation, animateWheel, rarityGlow,
+} from '../components/SpinWheel'
 
 export default function Admin() {
   const { userData, levelsHidden } = useAuth()
@@ -73,6 +76,7 @@ export default function Admin() {
     { id: 'prehled', label: '📊 Přehled' },
     { id: 'schvaleni', label: `✅ Schválení${pending.length > 0 ? ` (${pending.length})` : ''}` },
     { id: 'hrace', label: '⚙️ Hráči' },
+    { id: 'kolo', label: '🎲 Kolo' },
   ]
 
   return (
@@ -247,6 +251,9 @@ export default function Admin() {
         </div>
       )}
 
+      {/* ─── LOSOVACÍ KOLO (jen pro admina) ─────── */}
+      {tab === 'kolo' && <AdminWheel />}
+
       {/* Modal: darovat / seslat kletbu */}
       {giftModal && (
         <GiftCurseModal
@@ -272,6 +279,85 @@ export default function Admin() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function AdminWheel() {
+  const [rarityId, setRarityId] = useState(RARITIES[0].id)
+  const [rotation, setRotation] = useState(0)
+  const [spinning, setSpinning] = useState(false)
+  const [result, setResult] = useState(null)
+  const animRef = useRef(null)
+
+  useEffect(() => () => { if (animRef.current) cancelAnimationFrame(animRef.current) }, [])
+
+  const rarity = RARITIES.find(r => r.id === rarityId)
+  const curses = cursesOfRarity(rarityId)
+
+  const selectRarity = (id) => {
+    if (spinning) return
+    setRarityId(id); setResult(null); setRotation(0)
+  }
+
+  const handleSpin = async () => {
+    if (spinning || curses.length === 0) return
+    setSpinning(true); setResult(null)
+    const index = Math.floor(Math.random() * curses.length) // rovnoměrně, nic se neukládá
+    const target = calcTargetRotation(index, curses.length, rotation)
+    await animateWheel(animRef, rotation, target, SPIN_MS, setRotation)
+    setResult(curses[index])
+    setSpinning(false)
+  }
+
+  return (
+    <div>
+      <div className="card mb-3">
+        <p className="section-title">🎲 Losovací kolo (jen pro tebe)</p>
+        <p className="text-xs text-muted mb-3">
+          Vybereš vzácnost a zatočíš si pro náhodnou kletbu. Nic se nepřidává do inventáře —
+          slouží jen jako nápověda, kterou kletbu pak ručně sešleš přes „⚡ Seslat" u hráče.
+        </p>
+
+        {/* Výběr vzácnosti */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', marginBottom: '1rem' }}>
+          {RARITIES.map(r => (
+            <button key={r.id} onClick={() => selectRarity(r.id)} disabled={spinning}
+              className="btn"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem',
+                padding: '0.35rem 0.7rem',
+                background: rarityId === r.id ? 'rgba(201,168,76,0.14)' : 'var(--bg3)',
+                border: `1px solid ${rarityId === r.id ? 'var(--gold)' : 'var(--border)'}`,
+                color: rarityId === r.id ? 'var(--gold)' : 'var(--text-dim)',
+              }}>
+              <RarityGem rarity={r} size={18} />
+              <span style={{ textShadow: r.id === 'exotic' ? rarityGlow('exotic', r.wheelColor) : 'none' }}>{r.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Kolo */}
+        <div style={{ textAlign: 'center' }}>
+          <Wheel items={curses} rotation={rotation} size={220} />
+          <button className="btn btn-gold mt-3" onClick={handleSpin} disabled={spinning} style={{ minWidth: 200 }}>
+            {spinning ? '⏳ Točí se...' : '🎲 Zatočit'}
+          </button>
+        </div>
+
+        {/* Výsledek */}
+        {result && (
+          <div className="card mt-3" style={{ textAlign: 'center', borderColor: 'var(--gold-dim)' }}>
+            <div className="font-cinzel" style={{ color: rarity.wheelColor, fontSize: '0.8rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', textShadow: rarityGlow(rarity.id, rarity.wheelColor) }}>
+              <RarityGem rarity={rarity} size={18} /> {rarity.name}
+            </div>
+            <div style={{ fontSize: '2.4rem' }}>{result.icon}</div>
+            <div className="font-cinzel mt-1" style={{ color: 'var(--gold)', fontSize: '1.05rem' }}>{result.name}</div>
+            {result.desc && <div className="text-dim text-sm mt-1" style={{ maxWidth: 320, margin: '0.25rem auto 0' }}>{result.desc}</div>}
+            <p className="text-xs text-muted mt-2">Jen zobrazení — sešli ručně přes „⚡ Seslat" u vybraného hráče.</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
