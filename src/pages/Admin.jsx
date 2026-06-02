@@ -3,7 +3,7 @@ import {
   subscribeToAllUsers, subscribeToPendingUsers, approveUser, rejectUser,
   addXpToUser, removeXpFromUser, removeCurseFromUser, removeInventoryItem,
   deleteUserData, cleanExpiredCurses, giftCurseToUser, castCurseOnUser,
-  giveTokenToUser, setLevelsHidden, CURSES, RARITIES, cursesOfRarity, XP_PER_LEVEL
+  giveTokenToUser, setLevelsHidden, CURSES, RARITIES, cursesOfRarity, announceAdminRoll, XP_PER_LEVEL
 } from '../firebase/db'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../components/Toast'
@@ -284,6 +284,7 @@ export default function Admin() {
 }
 
 function AdminWheel() {
+  const { userData } = useAuth()
   const [rarityId, setRarityId] = useState(RARITIES[0].id)
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
@@ -306,8 +307,14 @@ function AdminWheel() {
     const index = Math.floor(Math.random() * curses.length) // rovnoměrně, nic se neukládá
     const target = calcTargetRotation(index, curses.length, rotation)
     await animateWheel(animRef, rotation, target, SPIN_MS, setRotation)
-    setResult(curses[index])
+    const curse = curses[index]
+    setResult(curse)
     setSpinning(false)
+    // Oznámení do chatu (jen tier + název kletby, bez popisu)
+    announceAdminRoll(
+      userData?.uid, userData?.username,
+      `🎲 Správcem byla vylosována: ${rarity.icon} ${rarity.name} – ${curse.icon} ${curse.name}`,
+    ).catch(() => {})
   }
 
   return (

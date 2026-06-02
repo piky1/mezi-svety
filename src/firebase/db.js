@@ -354,6 +354,13 @@ export const sendChatMessage = async (uid, username, text) => {
   })
 }
 
+// Oznámení do chatu o vylosované kletbě z adminského kola (jen zobrazení)
+export const announceAdminRoll = (adminUid, adminName, text) =>
+  addDoc(collection(db, 'chat'), {
+    uid: adminUid, username: adminName || 'Admin', text,
+    type: 'system', pinned: false, createdAt: serverTimestamp(),
+  })
+
 export const deleteChatMessage = (msgId) => deleteDoc(doc(db, 'chat', msgId))
 export const pinChatMessage = (msgId, pinned) => updateDoc(doc(db, 'chat', msgId), { pinned })
 

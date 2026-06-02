@@ -5,6 +5,7 @@ import { useToast } from '../components/Toast'
 import XpBar from '../components/XpBar'
 import CurseList from '../components/CurseList'
 import Avatar from '../components/Avatar'
+import Logo from '../components/Logo'
 
 export default function Postavy() {
   const { userData, levelsHidden } = useAuth()
@@ -101,6 +102,10 @@ export default function Postavy() {
 
   return (
     <div className="page">
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+        <Logo size={40} stack />
+      </div>
+
       <div className="flex items-center justify-between mb-3" style={{ gap: '0.75rem' }}>
         <h2 className="heading" style={{ fontSize: '1.3rem', color: 'var(--gold)' }}>✦ Postavy světa</h2>
         <div className="flex" style={{ gap: '0.4rem', flexShrink: 0 }}>
