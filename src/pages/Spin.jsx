@@ -82,14 +82,14 @@ export default function SpinPage() {
     <div className="page">
       <h2 className="heading mb-3" style={{ fontSize: '1.3rem', color: 'var(--gold)' }}>🎡 Kolo Štěstí</h2>
 
-      {tokens.length === 0 && !currentPending && effectiveState !== 'done' && (
+      {tokens.length === 0 && !currentPending && effectiveState === 'idle' && (
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🎡</div>
           <p className="text-dim">Nemáš žádné tokeny k zatočení.</p>
         </div>
       )}
 
-      {(tokens.length > 0 || currentPending || effectiveState === 'done') && (
+      {(tokens.length > 0 || currentPending || effectiveState !== 'idle') && (
         <div className="card card-gold" style={{ textAlign: 'center' }}>
 
           {/* KOLO 1 — vzácnost */}
