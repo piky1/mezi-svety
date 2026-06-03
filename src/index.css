@@ -235,8 +235,8 @@ input::placeholder { color: var(--text-muted); }
 /* Barvy kleteb podle vzácnosti */
 .curse-rarity-common    { background: rgba(150,150,162,0.16); color: #c2c2cc; border: 1px solid rgba(150,150,162,0.38); }
 .curse-rarity-rare      { background: rgba(68,136,187,0.18);  color: #6fb2e6; border: 1px solid rgba(68,136,187,0.42); }
-.curse-rarity-legendary { background: rgba(201,168,76,0.18);  color: var(--gold); border: 1px solid var(--gold-dim); }
-.curse-rarity-exotic    { background: rgba(136,68,170,0.22);  color: #c48ada; border: 1px solid rgba(136,68,170,0.5); }
+.curse-rarity-legendary { background: rgba(136,68,170,0.22);  color: #c48ada; border: 1px solid rgba(136,68,170,0.5); } /* Epic (fialová) */
+.curse-rarity-exotic    { background: rgba(201,168,76,0.18);  color: var(--gold); border: 1px solid var(--gold-dim); } /* Legendary (zlatá) */
 
 /* ─── Spinner wheel ─────────────────────────── */
 .wheel-container {

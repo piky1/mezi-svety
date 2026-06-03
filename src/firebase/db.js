@@ -17,13 +17,14 @@ export const setLevelsHidden = (hidden) =>
 
 // ─── Vzácnosti (rarity) ───
 // `weight` = SKUTEČNÁ šance losování (59/29/9/3 – NESAHAT).
-// `visualWeight` = jen velikost dílku na kole (opticky: −3 % common → exotic,
-// a −2 % common → legendary, ať se drahokamy vejdou). Reálná šance se NEMĚNÍ.
+// `visualWeight` = jen velikost dílku na kole. Reálná šance se NEMĚNÍ.
+// Pozn.: id zůstávají kvůli návaznosti na uložené kletby; mění se jen názvy a barvy:
+//   id 'legendary' = zobrazeno jako „Epic" (fialová), id 'exotic' = „Legendary" (zlatá).
 export const RARITIES = [
   { id: 'common',    name: 'Common',    icon: '⚪', weight: 59, visualWeight: 54, wheelColor: '#8a8a92', gem: { base: '#8a8a92', tab: '#bcbcc3', str: '#56565d' } },
   { id: 'rare',      name: 'Rare',      icon: '🔵', weight: 29, visualWeight: 29, wheelColor: '#4488bb', gem: { base: '#4488bb', tab: '#83bce2', str: '#285a80' } },
-  { id: 'legendary', name: 'Legendary', icon: '🟡', weight: 9,  visualWeight: 11, wheelColor: '#c9a84c', gem: { base: '#c9a84c', tab: '#ecd692', str: '#8a6f1e' } },
-  { id: 'exotic',    name: 'Exotic',    icon: '🟣', weight: 3,  visualWeight: 6,  wheelColor: '#8844aa', gem: { base: '#8844aa', tab: '#b974d6', str: '#592c72' } },
+  { id: 'legendary', name: 'Epic',      icon: '🟣', weight: 9,  visualWeight: 11, wheelColor: '#8844aa', gem: { base: '#8844aa', tab: '#b974d6', str: '#592c72' } },
+  { id: 'exotic',    name: 'Legendary', icon: '🟡', weight: 3,  visualWeight: 6,  wheelColor: '#c9a84c', gem: { base: '#c9a84c', tab: '#ecd692', str: '#8a6f1e' } },
 ]
 
 export const RARITY_BY_ID = Object.fromEntries(RARITIES.map(r => [r.id, r]))

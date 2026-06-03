@@ -4,10 +4,10 @@ export const SLICE_COLORS = ['#7040a0', '#4488bb', '#bb6040', '#40a060', '#c0903
 export const SPIN_MS = 4500
 export const RARITY_LEVEL = { common: 1, rare: 2, legendary: 3, exotic: 4 }
 
-// Zářící obrys textu podle vzácnosti (exotic má nejsilnější záři)
+// Zářící obrys textu – nově svítí jen „Legendary" (zlatá, id 'exotic'). Ostatní bez záře.
 export function rarityGlow(rarityId, color) {
-  if (rarityId === 'exotic') return '0 0 4px #b974d6, 0 0 14px rgba(136,68,170,0.85), 0 0 26px rgba(136,68,170,0.5)'
-  return `0 0 10px ${color}66`
+  if (rarityId === 'exotic') return '0 0 4px #ecd692, 0 0 14px rgba(201,168,76,0.9), 0 0 26px rgba(201,168,76,0.55)'
+  return 'none'
 }
 
 /**

@@ -86,7 +86,6 @@ export default function SpinPage() {
         <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🎡</div>
           <p className="text-dim">Nemáš žádné tokeny k zatočení.</p>
-          <p className="text-muted text-sm mt-1">Získáš je při každém sudém level upu.</p>
         </div>
       )}
 
