@@ -42,7 +42,7 @@ export default function SpinPage() {
     } catch (err) {
       toast('Chyba: ' + err.message, 'error'); setState('idle'); return
     }
-    const targetRot = calcTargetRotationWeighted(index, RARITIES.map(r => r.weight), rotation1)
+    const targetRot = calcTargetRotationWeighted(index, RARITIES.map(r => r.visualWeight), rotation1)
     await animateWheel(animRef, rotation1, targetRot, SPIN_MS, setRotation1)
     setResultRarity(rarity)
     toast(`${rarity.icon} ${rarity.name} — teď zatoč kletbu!`, 'info')
@@ -100,7 +100,7 @@ export default function SpinPage() {
                 Máš <span className="text-gold font-cinzel">{tokens.length}</span> {tokens.length === 1 ? 'token' : 'tokeny'}
               </p>
               <p className="text-xs text-muted mb-4">1. kolo — vzácnost</p>
-              <Wheel items={RARITIES} weights={RARITIES.map(r => r.weight)} rotation={rotation1}
+              <Wheel items={RARITIES} weights={RARITIES.map(r => r.visualWeight)} rotation={rotation1}
                 renderIcon={(item, x, y) => (
                   <g transform={`translate(${x} ${y})`} style={{ pointerEvents: 'none' }}>
                     <circle r="17" fill="rgba(0,0,0,0.2)" />

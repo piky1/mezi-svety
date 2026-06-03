@@ -252,7 +252,7 @@ export default function Admin() {
       )}
 
       {/* ─── LOSOVACÍ KOLO (jen pro admina) ─────── */}
-      {tab === 'kolo' && <AdminWheel />}
+      {tab === 'kolo' && <AdminWheel users={users} />}
 
       {/* Modal: darovat / seslat kletbu */}
       {giftModal && (
@@ -283,9 +283,11 @@ export default function Admin() {
   )
 }
 
-function AdminWheel() {
+function AdminWheel({ users = [] }) {
   const { userData } = useAuth()
+  const toast = useToast()
   const [rarityId, setRarityId] = useState(RARITIES[0].id)
+  const [targetUid, setTargetUid] = useState('')
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [result, setResult] = useState(null)
@@ -295,6 +297,8 @@ function AdminWheel() {
 
   const rarity = RARITIES.find(r => r.id === rarityId)
   const curses = cursesOfRarity(rarityId)
+  const players = users.filter(u => !u.isAdmin)
+  const target = players.find(u => u.uid === targetUid) || null
 
   const selectRarity = (id) => {
     if (spinning) return
@@ -304,30 +308,49 @@ function AdminWheel() {
   const handleSpin = async () => {
     if (spinning || curses.length === 0) return
     setSpinning(true); setResult(null)
-    const index = Math.floor(Math.random() * curses.length) // rovnoměrně, nic se neukládá
-    const target = calcTargetRotation(index, curses.length, rotation)
-    await animateWheel(animRef, rotation, target, SPIN_MS, setRotation)
+    const index = Math.floor(Math.random() * curses.length) // rovnoměrně
+    const targetRot = calcTargetRotation(index, curses.length, rotation)
+    await animateWheel(animRef, rotation, targetRot, SPIN_MS, setRotation)
     const curse = curses[index]
     setResult(curse)
     setSpinning(false)
-    // Oznámení do chatu (jen tier + název kletby, bez popisu)
-    announceAdminRoll(
-      userData?.uid, userData?.username,
-      `🎲 Správcem byla vylosována: ${rarity.icon} ${rarity.name} – ${curse.icon} ${curse.name}`,
-    ).catch(() => {})
+
+    try {
+      // Vybraný hráč -> kletbu na něj rovnou sešleme (bez generické hlášky)
+      if (target) {
+        await castCurseOnUser(userData?.uid, target.uid, curse.id, { silent: true })
+      }
+      // Zápis do chatu: Správcem byla vylosována: (úroveň, název) [pro jméno]
+      await announceAdminRoll(
+        userData?.uid, userData?.username,
+        `🎲 Správcem byla vylosována: ${rarity.icon} ${rarity.name}, ${curse.icon} ${curse.name}${target ? ` pro ${target.username}` : ''}`,
+      )
+      if (target) toast(`Kletba seslána na ${target.username}.`, 'success')
+    } catch (e) { toast('Chyba: ' + e.message, 'error') }
   }
 
   return (
     <div>
       <div className="card mb-3">
-        <p className="section-title">🎲 Losovací kolo (jen pro tebe)</p>
+        <p className="section-title">🎲 Losovací kolo</p>
         <p className="text-xs text-muted mb-3">
-          Vybereš vzácnost a zatočíš si pro náhodnou kletbu. Nic se nepřidává do inventáře —
-          slouží jen jako nápověda, kterou kletbu pak ručně sešleš přes „⚡ Seslat" u hráče.
+          Vyber vzácnost a (volitelně) hráče. Po zatočení se vylosovaná kletba zapíše do chatu;
+          pokud je vybraný hráč, rovnou se na něj sešle. Bez vybraného hráče slouží kolo jen jako náhled.
         </p>
 
+        {/* Výběr hráče */}
+        <div className="form-group">
+          <label className="form-label">Pro hráče</label>
+          <select value={targetUid} onChange={e => setTargetUid(e.target.value)} disabled={spinning}>
+            <option value="">— jen losovat (neseslat) —</option>
+            {players.map(u => (
+              <option key={u.uid} value={u.uid}>{u.username}</option>
+            ))}
+          </select>
+        </div>
+
         {/* Výběr vzácnosti */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center', margin: '0.5rem 0 1rem' }}>
           {RARITIES.map(r => (
             <button key={r.id} onClick={() => selectRarity(r.id)} disabled={spinning}
               className="btn"
@@ -348,7 +371,7 @@ function AdminWheel() {
         <div style={{ textAlign: 'center' }}>
           <Wheel items={curses} rotation={rotation} size={220} />
           <button className="btn btn-gold mt-3" onClick={handleSpin} disabled={spinning} style={{ minWidth: 200 }}>
-            {spinning ? '⏳ Točí se...' : '🎲 Zatočit'}
+            {spinning ? '⏳ Točí se...' : (target ? `🎲 Zatočit a seslat na ${target.username}` : '🎲 Zatočit')}
           </button>
         </div>
 
@@ -361,7 +384,9 @@ function AdminWheel() {
             <div style={{ fontSize: '2.4rem' }}>{result.icon}</div>
             <div className="font-cinzel mt-1" style={{ color: 'var(--gold)', fontSize: '1.05rem' }}>{result.name}</div>
             {result.desc && <div className="text-dim text-sm mt-1" style={{ maxWidth: 320, margin: '0.25rem auto 0' }}>{result.desc}</div>}
-            <p className="text-xs text-muted mt-2">Jen zobrazení — sešli ručně přes „⚡ Seslat" u vybraného hráče.</p>
+            <p className="text-xs text-muted mt-2">
+              {target ? `Sesláno na ${target.username} a zapsáno do chatu.` : 'Jen náhled — vyber hráče pro seslání.'}
+            </p>
           </div>
         )}
       </div>

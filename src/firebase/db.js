@@ -16,13 +16,14 @@ export const setLevelsHidden = (hidden) =>
   setDoc(doc(db, 'settings', 'app'), { levelsHidden: hidden }, { merge: true })
 
 // ─── Vzácnosti (rarity) ───
-// Kolo štěstí se nejdřív točí na vzácnost (s těmito vahami), pak na konkrétní kletbu.
-// Váhy: common 59 %, rare 29 %, legendary 9 %, exotic 3 %.
+// `weight` = SKUTEČNÁ šance losování (59/29/9/3 – NESAHAT).
+// `visualWeight` = jen velikost dílku na kole (opticky: −3 % common → exotic,
+// a −2 % common → legendary, ať se drahokamy vejdou). Reálná šance se NEMĚNÍ.
 export const RARITIES = [
-  { id: 'common',    name: 'Common',    icon: '⚪', weight: 59, wheelColor: '#8a8a92', gem: { base: '#8a8a92', tab: '#bcbcc3', str: '#56565d' } },
-  { id: 'rare',      name: 'Rare',      icon: '🔵', weight: 29, wheelColor: '#4488bb', gem: { base: '#4488bb', tab: '#83bce2', str: '#285a80' } },
-  { id: 'legendary', name: 'Legendary', icon: '🟡', weight: 9,  wheelColor: '#c9a84c', gem: { base: '#c9a84c', tab: '#ecd692', str: '#8a6f1e' } },
-  { id: 'exotic',    name: 'Exotic',    icon: '🟣', weight: 3,  wheelColor: '#8844aa', gem: { base: '#8844aa', tab: '#b974d6', str: '#592c72' } },
+  { id: 'common',    name: 'Common',    icon: '⚪', weight: 59, visualWeight: 54, wheelColor: '#8a8a92', gem: { base: '#8a8a92', tab: '#bcbcc3', str: '#56565d' } },
+  { id: 'rare',      name: 'Rare',      icon: '🔵', weight: 29, visualWeight: 29, wheelColor: '#4488bb', gem: { base: '#4488bb', tab: '#83bce2', str: '#285a80' } },
+  { id: 'legendary', name: 'Legendary', icon: '🟡', weight: 9,  visualWeight: 11, wheelColor: '#c9a84c', gem: { base: '#c9a84c', tab: '#ecd692', str: '#8a6f1e' } },
+  { id: 'exotic',    name: 'Exotic',    icon: '🟣', weight: 3,  visualWeight: 6,  wheelColor: '#8844aa', gem: { base: '#8844aa', tab: '#b974d6', str: '#592c72' } },
 ]
 
 export const RARITY_BY_ID = Object.fromEntries(RARITIES.map(r => [r.id, r]))
@@ -232,7 +233,7 @@ export const giftCurseToUser = async (targetUid, curseId) => {
   return { curse }
 }
 
-export const castCurseOnUser = async (adminUid, targetUid, curseId) => {
+export const castCurseOnUser = async (adminUid, targetUid, curseId, options = {}) => {
   const curse = CURSE_BY_ID[curseId]
   if (!curse) throw new Error('Kletba nenalezena')
   const adminData = await getUserData(adminUid)
@@ -248,12 +249,14 @@ export const castCurseOnUser = async (adminUid, targetUid, curseId) => {
   const targetCurses = (targetData.activeCurses || []).filter(c => new Date(c.expireAt) > new Date())
   targetCurses.push(activeCurse)
   await updateDoc(doc(db, 'users', targetUid), { activeCurses: targetCurses })
-  await addDoc(collection(db, 'chat'), {
-    uid: adminUid, username: adminData?.username || 'Admin',
-    text: `🎭 Admin seslal kletbu ${curse.icon} ${curse.name} na ${targetData.username}`,
-    type: 'system', pinned: false, createdAt: serverTimestamp(),
-  })
-  return { curse }
+  if (!options.silent) {
+    await addDoc(collection(db, 'chat'), {
+      uid: adminUid, username: adminData?.username || 'Admin',
+      text: `🎭 Admin seslal kletbu ${curse.icon} ${curse.name} na ${targetData.username}`,
+      type: 'system', pinned: false, createdAt: serverTimestamp(),
+    })
+  }
+  return { curse, targetName: targetData.username }
 }
 
 // ── KOLO 1 — vzácnost (váženo 59/29/9/3) ──
