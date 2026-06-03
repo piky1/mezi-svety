@@ -301,6 +301,18 @@ export const spinWheelCurseFromRarity = async (uid, pendingItemId) => {
     id: `curse_${Date.now()}_${Math.random()}`,
   })
   await updateDoc(doc(db, 'users', uid), { inventory: newInventory })
+
+  // Domina kletba má 24h limit na seslání – oznámíme to do chatu s deadlinem
+  if (curse.id === 'domina') {
+    const deadline = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      .toLocaleString('cs-CZ', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
+    await addDoc(collection(db, 'chat'), {
+      uid, username: userData.username,
+      text: `⛓️ ${userData.username} získal domina kletbu, má čas do ${deadline}`,
+      type: 'system', pinned: false, createdAt: serverTimestamp(),
+    }).catch(() => {})
+  }
+
   return { curse, index }
 }
 
