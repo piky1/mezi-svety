@@ -133,6 +133,21 @@ input::placeholder { color: var(--text-muted); }
 }
 .nav-logout:hover { background: rgba(192,64,64,0.28); }
 
+/* Na úzkých mobilech: logo na prvním řádku, tlačítka na druhém */
+@media (max-width: 520px) {
+  .nav {
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+    padding: 0.5rem 0.75rem;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+}
+
 /* ─── Card ──────────────────────────────────── */
 .card {
   background: var(--bg2);
