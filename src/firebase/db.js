@@ -43,6 +43,9 @@ export const CURSES = [
   { id: 'oralni',       rarity: 'common', icon: '🤐', name: 'Orální kletba',              desc: 'Musíš být potichu. Pokud promluvíš, vylosuje se ti jedna z legendary kleteb.' },
   { id: 'chameleon',    rarity: 'common', icon: '🦎', name: 'Chameleoní kletba',          desc: 'Musíš být skrytý/á za větví.' },
   { id: 'superhvezda',  rarity: 'common', icon: '🖊️', name: 'Kletba superhvězdy',         desc: 'Musíš se podepsat na lidi, se kterými vedeš konverzaci.' },
+  { id: 'mluveni_p',   rarity: 'common', icon: '🅿️', name: 'Kletba mluvení po P',         desc: 'Musíš se dorozumívat jen slovy začínajícími na P.' },
+  { id: 'prazska',     rarity: 'common', icon: '🏙️', name: 'Pražská kletba',               desc: 'Hele koukej, právě jakoby teďkonc mluvíš jako Pražák viď.' },
+  { id: 'hubeny_krivak',   rarity: 'common', icon: '🎭', name: 'Kletba hubeného křiváka',          desc: 'Musíš mluvit v rýmech.' },
 
   // ── RARE (modrá) ──
   { id: 'drevorubec',   rarity: 'rare', icon: '🪓', name: 'Kletba nadšeného dřevorubce', desc: 'Nosíš s sebou špalek.' },
@@ -69,6 +72,7 @@ export const CURSES = [
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
   { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
   { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu.' },
+  { id: 'vedouci',         rarity: 'exotic', icon: '🧙‍♂️', name: 'Kletba vedoucího',              desc: 'Musíš pro oddíl vymyslet program' },
 ]
 
 export const CURSE_BY_ID = Object.fromEntries(CURSES.map(c => [c.id, c]))
