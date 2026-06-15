@@ -38,14 +38,14 @@ export const CURSES = [
   { id: 'cringe',       rarity: 'common', icon: '💀', name: 'Kletba smrti cringem',       desc: 'V každé větě musíš říct „skibidi".' },
   { id: 'definitni',    rarity: 'common', icon: '✅', name: 'Definitní kletba',           desc: 'Odpovídáš jenom ano/ne.' },
   { id: 'redukcni',     rarity: 'common', icon: '🤚', name: 'Redukční kletba',            desc: 'Máš přivázanou ruku k pasu.' },
-  { id: 'ewa_farna',    rarity: 'common', icon: '🎤', name: 'Ewa Farná kletba',           desc: 'Všechno, co chceš říct, musíš zazpívat.' },
+  { id: 'ewa_farna',    rarity: 'common', icon: '🎤', name: 'Ewa Farna kletba',           desc: 'Všechno, co chceš říct, musíš zazpívat.' },
   { id: 'stary_tabor',  rarity: 'common', icon: '✋', name: 'Kletba starého tábora',      desc: 'Dostaneš stopku na 2 minuty.' },
   { id: 'oralni',       rarity: 'common', icon: '🤐', name: 'Orální kletba',              desc: 'Musíš být potichu. Pokud promluvíš, vylosuje se ti jedna z legendary kleteb.' },
   { id: 'chameleon',    rarity: 'common', icon: '🦎', name: 'Chameleoní kletba',          desc: 'Musíš být skrytý/á za větví.' },
   { id: 'superhvezda',  rarity: 'common', icon: '🖊️', name: 'Kletba superhvězdy',         desc: 'Musíš se podepsat na lidi, se kterými vedeš konverzaci.' },
   { id: 'prokleti_p',   rarity: 'common', icon: '🅿️', name: 'Prokletí písmene P',          desc: 'Pán/paní promlouvá pouze pomocí pojmů počínající písmenem P' },
   { id: 'prazska',     rarity: 'common', icon: '🏙️', name: 'Pražská kletba',               desc: 'Hele koukej, právě jakoby teďkonc mluvíš jako Pražák viď.' },
-  { id: 'hubeny_krivak',   rarity: 'common', icon: '🎭', name: 'Kletba hubeného křiváka',          desc: 'Musíš mluvit v rýmech.' },
+  { id: 'hubeny_krivak',   rarity: 'common', icon: '🎭', name: 'Kletba hubeného křiváka',  desc: 'Každé slovo, každá věta — tvá řeč musí být veršem opletá.' },
 
   // ── RARE (modrá) ──
   { id: 'drevorubec',   rarity: 'rare', icon: '🪓', name: 'Kletba nadšeného dřevorubce', desc: 'Nosíš s sebou špalek.' },
