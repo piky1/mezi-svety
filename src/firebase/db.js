@@ -70,7 +70,7 @@ export const CURSES = [
   // ── EXOTIC (fialová) ──
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
   { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
-  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu.' },
+  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu. (Gus se musí nacházet v táboru při seslání kletby).' },
   { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého křížečku', desc: 'Nejprve budeš namočen vodou, poté obalen moukou a strouhankou. Trojobal máš na sobě buď do oběda nebo do večeře.' },
 ]
 
