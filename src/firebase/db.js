@@ -33,7 +33,7 @@ export const RARITY_BY_ID = Object.fromEntries(RARITIES.map(r => [r.id, r]))
 export const CURSES = [
   // ── COMMON (šedá) ──
   { id: 'milan',        rarity: 'common', icon: '🪵', name: 'Milanova kletba',            desc: 'Nosíš s sebou klacek.' },
-  { id: 'piky',         rarity: 'common', icon: '👓', name: 'Pikyho prokletí',            desc: 'Dostaneš speciální brýle.' },
+  { id: 'piky',         rarity: 'common', icon: '👓', name: 'Pikyho kletba',            desc: 'Dostaneš speciální brýle.' },
   { id: 'klid_pohoda',  rarity: 'common', icon: '🎧', name: 'Kletba klidu, míru a pohody', desc: 'Dostaneš špunty do uší.' },
   { id: 'cringe',       rarity: 'common', icon: '💀', name: 'Kletba smrti cringem',       desc: 'V každé větě musíš říct „skibidi".' },
   { id: 'definitni',    rarity: 'common', icon: '✅', name: 'Definitní kletba',           desc: 'Odpovídáš jenom ano/ne.' },
@@ -70,7 +70,7 @@ export const CURSES = [
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
   { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
   { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu. (Gus se musí nacházet v táboru při seslání kletby).' },
-  { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého křížečku', desc: 'Nejprve budeš namočen vodou, poté obalen moukou a strouhankou. Trojobal máš na sobě buď do oběda nebo do večeře.' },
+  { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého řízečku', desc: 'Nejprve budeš namočen vodou, poté obalen moukou a strouhankou. Trojobal máš na sobě buď do oběda nebo do večeře.' },
 ]
 
 export const CURSE_BY_ID = Object.fromEntries(CURSES.map(c => [c.id, c]))
