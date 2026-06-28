@@ -63,14 +63,13 @@ export const CURSES = [
   { id: 'brainrot',     rarity: 'legendary', icon: '🧠', name: 'Kletba brainrotu',       desc: 'Totálně jsi přišel/přišla o rozum – jen slintáš, kýveš a děláš 67 rukama na jakoukoliv interakci se světem.' },
   { id: 'trestanec',    rarity: 'legendary', icon: '👟', name: 'Trestanecká kletba',     desc: 'Zavaž si k sobě tkaničky (půjdeš jako vězeň).' },
   { id: 'yes_man',      rarity: 'legendary', icon: '👍', name: 'Yes Man kletba',         desc: 'Stáváš se yes manem.' },
-  { id: 'nejhorsi',     rarity: 'legendary', icon: '😱', name: 'Nejhorší kletba',        desc: 'Dostaneš na starost Milana.' },
   { id: 'vlk',          rarity: 'legendary', icon: '🐺', name: 'Kletba vlka',            desc: 'Chodíš po čtyřech. Když se zastavíš, jednou rukou můžeš něco dělat.' },
   { id: 'mim',          rarity: 'legendary', icon: '🎭', name: 'Kletba mima',            desc: 'Stáváš se mimem.' },
 
   // ── EXOTIC (fialová) ──
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
   { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
-  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu. (Gus se musí nacházet v táboru při seslání kletby).' },
+  { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu. (Gus se musí nacházet v táboru při seslání kletby).' },
   { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého křížečku', desc: 'Nejprve budeš namočen vodou, poté obalen moukou a strouhankou. Trojobal máš na sobě buď do oběda nebo do večeře.' },
 ]
 
