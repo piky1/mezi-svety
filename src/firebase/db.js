@@ -44,14 +44,14 @@ export const CURSES = [
   { id: 'prokleti_p',   rarity: 'common', icon: '🅿️', name: 'Prokletí písmene P',          desc: 'Pán/paní promlouvá pouze pomocí pojmů počínající písmenem P' },
   { id: 'hubeny_krivak',   rarity: 'common', icon: '🎭', name: 'Kletba hubeného křiváka',  desc: 'Každé slovo, každá věta — tvá řeč musí být veršem opletá.' },
   { id: 'velka_67',     rarity: 'common', icon: '🙌', name: 'Kletba velké šedesát sedmičky', desc: 'Kdykoliv mluvíš, děláš rukama 67.' },
-  { id: 'saturnin',     rarity: 'common', icon: '⭕', name: 'Saturninova kletba',          desc: 'Nosíš obruč.' },
+  { id: 'saturnin',     rarity: 'common', icon: '⭕', name: 'Saturninova kletba',          desc: 'Nosíš kolem pasu obruč.' },
 
   // ── RARE (modrá) ──
   { id: 'zapachajici',  rarity: 'rare', icon: '🦨', name: 'Kletba zapáchajícího poutníka', desc: 'Nesmíš do sprchy dalších 24 h.' },
   { id: 'drevorubec',   rarity: 'rare', icon: '🪓', name: 'Kletba nadšeného dřevorubce', desc: 'Nosíš s sebou špalek.' },
   { id: 'hadankar',     rarity: 'rare', icon: '❓', name: 'Kletba hádankáře',            desc: 'Odpovídáš otázkami.' },
   { id: 'hipizak',      rarity: 'rare', icon: '🧦', name: 'Kletba hipízáckého naturalisty', desc: 'Nesmíš mít na sobě boty.' },
-  { id: 'kravi',        rarity: 'rare', icon: '🐄', name: 'Krávovská kletba',            desc: 'Posloucháš Tylko jedno w głowie mam.' },
+  { id: 'kravi',        rarity: 'rare', icon: '🐄', name: 'Krávovská kletba',            desc: 'Posloucháš nonstop verzi Tylko jedno w głowie mam.' },
   { id: 'policejni',    rarity: 'rare', icon: '👮', name: 'Policejní kletba',            desc: 'Nosíš policejní kanady.' },
   { id: 'mimozeman',    rarity: 'rare', icon: '👽', name: 'Mimozemská kletba',           desc: 'Nesmíš používat reálná slova.' },
   { id: 'domina',       rarity: 'rare', icon: '⛓️', name: 'Domina kletba',               desc: 'Jsi přivázaný/á na vodítko k tomu, kdo na tebe kletbu seslal. Nutno seslat do 24 h od získání, jinak se losuje legendary kletba.' },
@@ -71,7 +71,7 @@ export const CURSES = [
   { id: 'zizala',       rarity: 'exotic', icon: '🪱', name: 'Kletba žížaly',             desc: 'Musíš být ve svém spacáku.' },
   { id: 'vitr',         rarity: 'exotic', icon: '🌬️', name: 'Kletba větru',              desc: 'Tvoje chatka dostala letečák.' },
   { id: 'nejhorsi_opravdu', rarity: 'exotic', icon: '🧲', name: 'Opravdu nejhorší kletba', desc: 'Nesmíš se hnout od Gusa 1 hodinu.' },
-  { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého křížečku', desc: 'Namočení vodou, obalení moukou a strouhankou do oběda nebo do večeře.' },
+  { id: 'krupave_krizecek', rarity: 'exotic', icon: '🍗', name: 'Kletba křupavého křížečku', desc: 'Nejprve budeš namočen vodou, poté obalen moukou a strouhankou. Trojobal máš na sobě buď do oběda nebo do večeře.' },
 ]
 
 export const CURSE_BY_ID = Object.fromEntries(CURSES.map(c => [c.id, c]))
